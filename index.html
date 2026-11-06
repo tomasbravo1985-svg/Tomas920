@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bitácora Viva · Escuela que Regenera</title>
+<meta name="description" content="Programa Regeneración Ecosocial de la Escuela Rebeca Matte Bello: clases, juegos, notas de campo y semillas.">
+<meta name="theme-color" content="#15392F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bitácora Viva">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-1536x2048.png">
+<link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-1640x2360.png">
+<link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-1668x2388.png">
+<link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-2048x2732.png">
+<link rel="preload" href="fonts/bricolage-grotesque-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="lanzador.css">
+<script src="config.js"></script>
+</head>
+<body>
+<main class="pantalla" id="inicio">
+  <header class="marca">
+    <img src="icons/icon.svg" alt="" width="88" height="88" class="logo">
+    <p class="eyebrow">Escuela que Regenera</p>
+    <h1>Bitácora Viva</h1>
+    <p class="bajada">Clases, juegos, notas de campo y semillas del programa Regeneración Ecosocial.</p>
+  </header>
+
+  <p class="aviso" id="sin-red" role="status" hidden>No hay conexión a internet. Bitácora Viva necesita internet para abrir las clases. Cuando vuelva la conexión, los botones se activarán solos.</p>
+
+  <div class="auto" id="auto" role="status" hidden>
+    <p>Abriendo <strong id="auto-modo"></strong>…</p>
+    <button type="button" class="btn ghost" id="auto-cambiar">Elegir de nuevo</button>
+  </div>
+
+  <section class="opciones" id="opciones" aria-label="Cómo quieres entrar">
+    <a class="opcion principal" id="ir-colegio" href="#" data-modo="colegio">
+      <span class="t">Entrar con mi cuenta del colegio</span>
+      <span class="d">Para estudiantes y docentes con correo @escuelarmb.cl. Tu avance se guarda en el colegio.</span>
+    </a>
+    <a class="opcion" id="ir-visitante" href="#" data-modo="visitante">
+      <span class="t">Entrar como visitante</span>
+      <span class="d">Sin cuenta. Tu avance se guarda solo en este dispositivo.</span>
+    </a>
+    <label class="recordar"><input type="checkbox" id="recordar"> Recordar mi elección y entrar directo la próxima vez</label>
+  </section>
+
+  <section class="instalar" id="instalar" hidden>
+    <h2>Instala Bitácora Viva</h2>
+    <p id="instalar-texto">Tenla en tu pantalla de inicio, con su propio ícono.</p>
+    <button type="button" class="btn" id="btn-instalar" hidden>Instalar la app</button>
+    <ol class="pasos" id="pasos-ios" hidden>
+      <li>Toca <strong>Compartir</strong> <span class="ico" aria-hidden="true">⬆︎</span> en la barra de Safari.</li>
+      <li>Elige <strong>Agregar a pantalla de inicio</strong>.</li>
+      <li>Toca <strong>Agregar</strong>.</li>
+    </ol>
+  </section>
+
+  <footer class="pie">
+    <a href="instalar.html">Cómo instalar en iPhone y Android</a>
+    <span>Escuela Rebeca Matte Bello · Renca</span>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" hidden>
+  <span>Hay una versión nueva de Bitácora Viva.</span>
+  <button type="button" class="btn sm" id="btn-actualizar">Actualizar</button>
+</div>
+
+<script src="lanzador.js"></script>
+</body>
+</html>
