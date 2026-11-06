@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba de sonido · Bitácora Viva</title>
+<meta name="theme-color" content="#15392F">
+<style>
+:root{--bg:#F6F2E8;--papel:#FFFDF7;--bosque:#15392F;--muted:#56605A;--line:#E0D8C6;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#18211E;font:16px/1.45 system-ui,-apple-system,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;color:var(--bosque);margin:0 0 6px}p{margin:0 0 12px;color:var(--muted)}
+.grupo{background:var(--papel);border:1px solid var(--line);border-radius:18px;padding:14px;margin:14px 0}
+.grupo h2{font-size:1.05rem;margin:0 0 10px;color:var(--bosque)}
+button{display:block;width:100%;min-height:48px;margin:8px 0;border:0;border-radius:14px;background:var(--bosque);color:#F6F2E8;font:700 1rem system-ui;padding:12px}
+button.r{background:#C8F169;color:var(--bosque)}
+pre{white-space:pre-wrap;word-break:break-word;background:#1d2b26;color:#d7ecd9;border-radius:14px;padding:12px;font:13px/1.4 ui-monospace,Menlo,monospace;min-height:120px}
+iframe{width:100%;height:250px;border:1px dashed var(--bosque);border-radius:14px;background:#fff}
+</style>
+</head>
+<body>
+<main>
+<h1>Prueba de sonido</h1>
+<p>Toca cada botón y fíjate si se escucha. Al final, toma una captura de pantalla de esta página y envíasela a Claude.</p>
+
+<div class="grupo">
+  <h2>1 · En esta página</h2>
+  <button id="b-voz">A · Voz: «Hola, esta es la Bitácora Viva»</button>
+  <button id="b-beep">B · Pitido (sonidos de la app)</button>
+  <button id="b-html">C · Sonido de reproductor</button>
+</div>
+
+<div class="grupo">
+  <h2>2 · Dentro de un marco, como en la app</h2>
+  <iframe id="marco" sandbox="allow-scripts allow-forms allow-modals allow-popups" allow="autoplay *"></iframe>
+</div>
+
+<div class="grupo">
+  <h2>Resultado</h2>
+  <pre id="log"></pre>
+  <button class="r" id="b-copiar">Copiar resultado</button>
+</div>
+</main>
+<script>
+(function(){
+var PRUEBA = function(nombre, log){
+  var ss = window.speechSynthesis, ctx = null;
+  function voces(){ try { return (ss && ss.getVoices()) || []; } catch(e){ return []; } }
+  function info(){
+    var vs = voces(), es = vs.filter(function(v){ return /^es/i.test(v.lang); });
+    log(nombre + ': voz ' + (ss ? 'sí' : 'NO') + ' · voces ' + vs.length + ' (español ' + es.length + (es[0] ? ': ' + es[0].name + ' ' + es[0].lang : '') + ')' +
+      ' · AudioContext ' + (!!(window.AudioContext || window.webkitAudioContext) ? 'sí' : 'NO') +
+      ' · audioSession ' + (navigator.audioSession ? navigator.audioSession.type : 'no existe'));
+  }
+  function voz(){
+    if (!ss) { log(nombre + ' A: no hay voz en este navegador'); return; }
+    try {
+      var vs = voces(), v = vs.filter(function(x){ return /^es/i.test(x.lang); })[0];
+      var u = new SpeechSynthesisUtterance('Hola, esta es la Bitácora Viva');
+      u.lang = v ? v.lang : 'es-CL'; if (v) u.voice = v; u.volume = 1;
+      var t0 = Date.now();
+      u.onstart = function(){ log(nombre + ' A: empezó a hablar'); };
+      u.onend = function(){ log(nombre + ' A: terminó (' + (Date.now() - t0) + ' ms)'); };
+      u.onerror = function(e){ log(nombre + ' A: ERROR ' + (e.error || e.type)); };
+      ss.speak(u);
+      log(nombre + ' A: pedido enviado (hablando=' + ss.speaking + ', pendiente=' + ss.pending + ')');
+      setTimeout(function(){ log(nombre + ' A: a los 2 s hablando=' + ss.speaking + ' pendiente=' + ss.pending); }, 2000);
+    } catch(e) { log(nombre + ' A: ERROR ' + e.message); }
+  }
+  function beep(){
+    try {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!ctx) ctx = new C();
+      if (ctx.state === 'suspended') ctx.resume();
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 660; g.gain.value = 0.25; o.connect(g); g.connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + 0.4);
+      setTimeout(function(){ log(nombre + ' B: estado ' + ctx.state); }, 300);
+    } catch(e) { log(nombre + ' B: ERROR ' + e.message); }
+  }
+  function wav(){
+    var sr = 22050, n = sr * 0.5, b = new Uint8Array(44 + n), d = new DataView(b.buffer);
+    var w = function(o, s){ for (var i = 0; i < s.length; i++) b[o + i] = s.charCodeAt(i); };
+    w(0,'RIFF'); d.setUint32(4, 36 + n, true); w(8,'WAVEfmt '); d.setUint32(16,16,true); d.setUint16(20,1,true); d.setUint16(22,1,true);
+    d.setUint32(24,sr,true); d.setUint32(28,sr,true); d.setUint16(32,1,true); d.setUint16(34,8,true); w(36,'data'); d.setUint32(40,n,true);
+    for (var i = 0; i < n; i++) b[44 + i] = 128 + Math.round(60 * Math.sin(2 * Math.PI * 523 * i / sr));
+    var s = ''; for (var j = 0; j < b.length; j++) s += String.fromCharCode(b[j]);
+    return 'data:audio/wav;base64,' + btoa(s);
+  }
+  function html(){
+    try {
+      var a = new Audio(wav());
+      a.play().then(function(){ log(nombre + ' C: sonando'); }).catch(function(e){ log(nombre + ' C: ERROR ' + e.name); });
+    } catch(e) { log(nombre + ' C: ERROR ' + e.message); }
+  }
+  return { info: info, voz: voz, beep: beep, html: html };
+};
+
+var logEl = document.getElementById('log');
+function log(m){ logEl.textContent += m + '\n'; }
+window.addEventListener('message', function(e){ if (e.data && e.data.bvlog) log(e.data.bvlog); });
+log('Equipo: ' + navigator.userAgent.replace(/^Mozilla\/5\.0 /, ''));
+var P = PRUEBA('Página', log);
+setTimeout(P.info, 600);
+document.getElementById('b-voz').onclick = P.voz;
+document.getElementById('b-beep').onclick = P.beep;
+document.getElementById('b-html').onclick = P.html;
+document.getElementById('b-copiar').onclick = function(){
+  try { navigator.clipboard.writeText(logEl.textContent).then(function(){ log('(copiado)'); }); } catch(e) {}
+};
+
+var css = 'body{margin:0;font:15px system-ui;padding:8px}button{display:block;width:100%;min-height:46px;margin:6px 0;border:0;border-radius:12px;background:#15392F;color:#F6F2E8;font:700 15px system-ui}';
+var src = '<!doctype html><meta name="viewport" content="width=device-width"><style>' + css + '</style>' +
+  '<button id="v">A · Voz (en el marco)</button><button id="b">B · Pitido (en el marco)</button><button id="h">C · Reproductor (en el marco)</button>' +
+  '<script>var PRUEBA=' + PRUEBA.toString() + ';function log(m){parent.postMessage({bvlog:m},"*")}var P=PRUEBA("Marco",log);setTimeout(P.info,600);' +
+  'document.getElementById("v").onclick=P.voz;document.getElementById("b").onclick=P.beep;document.getElementById("h").onclick=P.html;<\/script>';
+document.getElementById('marco').srcdoc = src;
+})();
+</script>
+</body>
+</html>
