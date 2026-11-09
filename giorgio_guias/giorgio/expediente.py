@@ -49,6 +49,7 @@ class Encargo:
     tema: str = ""                 # opcional: si se deja vacío, ATENEA propone uno
     fecha: str = field(default_factory=lambda: date.today().isoformat())
     duracion_minutos: int = 90
+    fuente_contenido: str = ""     # modo manual: archivo de contenidos/ escrito por Claude Code
 
 
 @dataclass
@@ -57,6 +58,7 @@ class Expediente:
     estado: str = "nuevo"
     historial_previo: list[dict] = field(default_factory=list)  # lo llena ARCHIVO
     contenido: dict = field(default_factory=dict)               # lo llena ATENEA
+    diseno: dict = field(default_factory=dict)                  # lo llena BAUHAUS: sopa y crucigrama
     archivos: dict = field(default_factory=dict)                # lo llena BAUHAUS: {"docx": ..., "pdf": ...}
     revision: dict = field(default_factory=dict)                # lo llena REVISOR
     intentos_correccion: int = 0

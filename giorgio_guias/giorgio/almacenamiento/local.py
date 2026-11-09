@@ -1,6 +1,7 @@
 """Almacén en una carpeta de tu computador (datos/archivo)."""
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 from ..configuracion import RAIZ
@@ -15,6 +16,11 @@ class AlmacenLocal(Almacen):
         destino = self.carpeta / ruta
         destino.parent.mkdir(parents=True, exist_ok=True)
         destino.write_text(texto, encoding="utf-8")
+
+    def guardar_archivo(self, ruta: str, origen) -> None:
+        destino = self.carpeta / ruta
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(origen, destino)
 
     def leer_texto(self, ruta: str) -> str:
         return (self.carpeta / ruta).read_text(encoding="utf-8")

@@ -10,6 +10,10 @@ class Almacen:
     def guardar_texto(self, ruta: str, texto: str) -> None:
         raise NotImplementedError
 
+    def guardar_archivo(self, ruta: str, origen) -> None:
+        """Copia un archivo (Word, PDF) al almacén."""
+        raise NotImplementedError
+
     def leer_texto(self, ruta: str) -> str:
         raise NotImplementedError
 

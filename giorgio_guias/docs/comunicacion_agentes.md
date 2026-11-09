@@ -36,8 +36,9 @@ quién le toca.
 | `encargo`          | Profesor         | asignatura, cursos, tema, fecha, 90 min     |
 | `historial_previo` | ARCHIVO          | guías anteriores, para no repetir           |
 | `contenido`        | ATENEA           | todas las secciones de la guía + respuestas |
-| `archivos`         | BAUHAUS          | rutas del Word y del PDF                    |
-| `revision`         | REVISOR          | aprobada sí/no + lista de observaciones     |
+| `diseno`           | BAUHAUS          | la sopa de letras y el crucigrama generados |
+| `archivos`         | BAUHAUS          | Word y PDF de la guía y del solucionario    |
+| `revision`         | REVISOR          | aprobada sí/no, observaciones, advertencias |
 | `bitacora`         | Todos            | notitas: quién entregó qué a quién          |
 | `estado`           | Todos            | en qué paso va la guía                      |
 

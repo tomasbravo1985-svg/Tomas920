@@ -15,7 +15,7 @@ def revisar(nombre, condicion, ayuda):
 print("GIORGIO GUÍAS — revisión del computador\n")
 revisar(f"Python {sys.version.split()[0]} (se necesita 3.11 o más)", sys.version_info >= (3, 11),
         "Instala Python desde python.org")
-for modulo, paquete in [("docx", "python-docx"), ("PIL", "Pillow"), ("pytest", "pytest")]:
+for modulo, paquete in [("docx", "python-docx"), ("PIL", "Pillow"), ("pypdf", "pypdf"), ("pytest", "pytest")]:
     try:
         importlib.import_module(modulo)
         revisar(paquete, True, "")

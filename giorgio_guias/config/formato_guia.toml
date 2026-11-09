@@ -15,17 +15,18 @@ campos = ["Nombre", "Curso", "Fecha"]
 
 # Secciones obligatorias, en este orden.
 # "id" es el nombre interno; "titulo" es lo que verá el estudiante.
+# BAUHAUS numera solo: Actividad 1, Actividad 2 (sopa), Actividad 3 (crucigrama)...
 [[secciones]]
 id = "actividad_inicial"
 titulo = "Actividad inicial"
 
 [[secciones]]
 id = "sopa_de_letras"
-titulo = "Actividad 2: Sopa de letras"
+titulo = "Sopa de letras"
 
 [[secciones]]
 id = "crucigrama"
-titulo = "Actividad 3: Crucigrama"
+titulo = "Crucigrama"
 
 [[secciones]]
 id = "lectura"
