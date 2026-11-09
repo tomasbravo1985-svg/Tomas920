@@ -2,14 +2,17 @@
 
 Recibe: exp.contenido (de ATENEA).
 Entrega:
-- exp.diseno   = {"sopa": ..., "crucigrama": ..., "imagenes_faltantes": [...]}
+- exp.diseno   = {"sopa": ..., "crucigrama": ..., "imagenes": [...], "logo": ...}
 - exp.archivos = {"docx", "pdf", "solucionario_docx", "solucionario_pdf"}
 
 Responsabilidades:
 - Aplicar el formato institucional (config/escuela.toml y config/formato_guia.toml).
 - Tamaño carta, vertical, espacios amplios para escribir.
 - Generar sopas de letras y crucigramas CON su solución (en un solucionario aparte).
-- Imágenes en escala de grises aptas para impresión.
+- Usar fotografías, mapas e ilustraciones del BANCO DE RECURSOS (recursos/catalogo.json).
+  Si falta una imagen, la pide al profesor (recursos/entrada/PEDIDO_DE_IMAGENES.md).
+- Usar automáticamente el logo guardado una vez (recursos/logo/logo_escuela.png).
+- Imágenes en escala de grises, con contraste ajustado para impresión.
 - Exportar Word (python-docx) y PDF (LibreOffice, gratuito).
 """
 from __future__ import annotations
@@ -27,9 +30,8 @@ from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.shared import Cm, Pt, RGBColor
-from PIL import Image
 
-from .. import configuracion, cuadriculas
+from .. import configuracion, cuadriculas, memoria, recursos
 from .. import word as w
 from ..configuracion import RAIZ
 from ..expediente import Expediente
@@ -37,6 +39,8 @@ from .base import Agente
 
 LETRAS = "ABCD"
 ANCHO_UTIL_CM = 21.59 - 2 * 1.8   # carta menos márgenes
+ANCHO_IMAGEN_CM = (ANCHO_UTIL_CM - 0.6) / 2 - 1.2   # 2 imágenes por fila
+ANCHO_LOGO_CM = 2.6
 FUENTE = "Arial"
 
 
@@ -93,15 +97,17 @@ class Bauhaus(Agente):
             exp.anotar("bauhaus", "revisor", "aviso", f"No diseñé: faltan secciones {', '.join(faltan)}.")
             return exp
         semilla = 7 + 31 * exp.intentos_correccion   # si hay que rehacer, cambia el azar
-        exp.diseno = {
-            "sopa": self._sopa(c["sopa_de_letras"]["palabras"], semilla),
-            "crucigrama": cuadriculas.crear_crucigrama(c["crucigrama"]["pistas"], semilla=semilla),
-            "imagenes_faltantes": [],
-        }
-
+        self.reglas = memoria.reglas(exp.lecciones)
         e = exp.encargo
         carpeta = self.carpeta_salida / f"{e.fecha}_{nombre_corto(e.asignatura)}_{slug('_'.join(e.cursos))}_guia{e.numero}"
         carpeta.mkdir(parents=True, exist_ok=True)
+        self.carpeta_imagenes = carpeta / "_imagenes_impresion"
+        exp.diseno = {
+            "sopa": self._sopa(c["sopa_de_letras"]["palabras"], semilla),
+            "crucigrama": cuadriculas.crear_crucigrama(c["crucigrama"]["pistas"], semilla=semilla),
+            "imagenes": self._resolver_imagenes(exp, c["analisis_imagenes"].get("imagenes", [])),
+            "logo": str(recursos.logo_disponible() or ""),
+        }
         base = f"{nombre_corto(e.asignatura)}_{slug('_'.join(e.cursos))}_guia{e.numero}_{e.fecha}"
 
         guia = carpeta / f"{base}.docx"
@@ -119,6 +125,31 @@ class Bauhaus(Agente):
         exp.anotar("bauhaus", "revisor", "entrega",
                    f"Guía diseñada en {carpeta.name} (PDF: {'sí' if 'pdf' in exp.archivos else 'no'}).")
         return exp
+
+    def _resolver_imagenes(self, exp, imagenes) -> list[dict]:
+        """Busca cada imagen en el banco de recursos. Si falta, la pide al profesor."""
+        guia = f"{exp.encargo.asignatura} {', '.join(exp.encargo.cursos)} guía {exp.encargo.numero}"
+        resueltas = []
+        for img in imagenes:
+            id_ = img.get("recurso") or Path(img.get("archivo", "")).stem
+            ruta = recursos.ruta_de(id_)
+            if ruta is None and img.get("archivo") and (RAIZ / img["archivo"]).is_file():
+                ruta = RAIZ / img["archivo"]
+            ficha = recursos.ficha(id_) or {}
+            if ruta is None:
+                ficha = recursos.pedir(id_, img.get("tipo", "fotografia"),
+                                       img.get("descripcion", "") or img.get("pie", ""),
+                                       img.get("sugerencia_fuente", ""), guia)
+            resueltas.append({
+                "id": id_, "pie": img.get("pie", ""), "ruta": str(ruta) if ruta else "",
+                "tipo": ficha.get("tipo", img.get("tipo", "")),
+                "estado": "falta" if ruta is None else ficha.get("estado", "disponible"),
+                "descripcion": ficha.get("descripcion") or img.get("descripcion", ""),
+                "fuente": ficha.get("fuente", ""), "licencia": ficha.get("licencia", ""),
+                "ancho_cm": round(ANCHO_IMAGEN_CM, 1),
+                "calidad": recursos.evaluar_calidad(ruta, ANCHO_IMAGEN_CM) if ruta else None,
+            })
+        return resueltas
 
     def _sopa(self, palabras, semilla):
         largo = max(len(cuadriculas.normalizar(p)) for p in palabras)
@@ -169,9 +200,10 @@ class Bauhaus(Agente):
         w.sin_bordes_tabla(tabla)
         w.ancho_columnas(tabla, [3.2, ANCHO_UTIL_CM - 3.2])
         celda_logo, celda_texto = tabla.rows[0].cells
-        logo = RAIZ / esc.get("logo", "")
-        if esc.get("logo") and logo.is_file():
-            celda_logo.paragraphs[0].add_run().add_picture(str(self._gris(logo)), width=Cm(2.6))
+        logo = recursos.logo_disponible()   # se guarda una vez y se usa en todas las guías
+        if logo:
+            celda_logo.paragraphs[0].add_run().add_picture(
+                str(recursos.preparar_para_imprimir(logo, self.carpeta_imagenes)), width=Cm(ANCHO_LOGO_CM))
         else:
             w.bordes_celda(celda_logo, color="808080", estilo="dashed")
             p = celda_logo.paragraphs[0]
@@ -257,15 +289,9 @@ class Bauhaus(Agente):
             p.add_run(f"{i}. ").bold = True
             p.add_run(preg["texto"])
             w.no_separar_de_lo_siguiente(p)
-            for _ in range(preg.get("lineas", 3)):
+            minimo = getattr(self, "reglas", {}).get("min_lineas_respuesta", 0) or 0
+            for _ in range(max(preg.get("lineas", 3), minimo)):
                 w.linea_para_escribir(doc)
-
-    def _gris(self, ruta: Path) -> Path:
-        """Copia la imagen en escala de grises (para impresoras en blanco y negro)."""
-        destino = Path(tempfile.gettempdir()) / "giorgio_gris" / (slug(ruta.stem) + ".png")
-        destino.parent.mkdir(parents=True, exist_ok=True)
-        Image.open(ruta).convert("L").save(destino)
-        return destino
 
     # ------------------------------------------------------------------ guía del estudiante
     def _documento_guia(self, exp: Expediente, carpeta: Path) -> Document:
@@ -328,7 +354,7 @@ class Bauhaus(Agente):
         ai = c["analisis_imagenes"]
         self._barra(doc, siguiente(), secciones["analisis_imagenes"]["titulo"])
         self._instruccion(doc, ai["instruccion"])
-        self._imagenes(doc, exp, ai["imagenes"])
+        self._imagenes(doc, exp.diseno["imagenes"])
         if ai.get("tabla"):
             self._tabla_para_completar(doc, ai["tabla"])
         if ai.get("preguntas"):
@@ -503,7 +529,7 @@ class Bauhaus(Agente):
                     q.add_run(f"{pal['numero']}. ").bold = True
                     q.add_run(f"{pal['pista']} ({len(pal['palabra'])} letras)")
 
-    def _imagenes(self, doc, exp, imagenes):
+    def _imagenes(self, doc, imagenes):
         cols = 2
         filas = -(-len(imagenes) // cols)
         tabla = doc.add_table(rows=filas, cols=cols)
@@ -517,16 +543,19 @@ class Bauhaus(Agente):
             celda = tabla.rows[i // cols].cells[i % cols]
             p = celda.paragraphs[0]
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            ruta = RAIZ / img["archivo"]
-            if ruta.is_file():
-                p.add_run().add_picture(str(self._gris(ruta)), width=Cm(ancho - 1.2))
-            else:
-                exp.diseno["imagenes_faltantes"].append(img["archivo"])
+            if img["ruta"]:
+                impresion = recursos.preparar_para_imprimir(Path(img["ruta"]), self.carpeta_imagenes)
+                p.add_run().add_picture(str(impresion), width=Cm(ANCHO_IMAGEN_CM))
+            else:  # falta: queda un recuadro visible y REVISOR detendrá la entrega
                 w.bordes_celda(celda, estilo="dashed", color="808080")
-                p.add_run(f"\n\n[Pegar aquí: {img.get('descripcion', img['archivo'])}]\n\n").italic = True
+                p.add_run(f"\n\n[FALTA IMAGEN: {img['id']}]\n{img['descripcion']}\n\n").italic = True
             pie = celda.add_paragraph(img.get("pie", ""))
             pie.alignment = WD_ALIGN_PARAGRAPH.CENTER
             pie.runs[0].bold = True
+            if img.get("fuente"):
+                credito = celda.add_paragraph(f"Fuente: {img['fuente']}" + (f" ({img['licencia']})" if img.get("licencia") else ""))
+                credito.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                credito.runs[0].font.size = Pt(7)
         doc.add_paragraph()
 
     def _tabla_para_completar(self, doc, tabla_def):
@@ -556,10 +585,14 @@ class Bauhaus(Agente):
         self._titulo(doc, f"SOLUCIONARIO — {c['titulo']}", 16)
         datos = [("Asignatura:", exp.encargo.asignatura), ("Curso:", ", ".join(exp.encargo.cursos)),
                  ("Objetivo:", c["objetivo"])]
-        if c.get("oa"):
-            datos.append(("Objetivo de Aprendizaje:", c["oa"]))
-        if c.get("verificar_oa"):
-            datos.append(("Pendiente:", c["verificar_oa"]))
+        for oa in c.get("oa_verificacion", []):
+            if oa["estado"] == "verificado":
+                datos.append((f"{oa['codigo']} (verificado):", f"{oa['texto']}  [Fuente: {oa['fuente']}]"))
+            elif oa["estado"] == "institucional":
+                datos.append(("Objetivo de Aprendizaje:", oa["motivo"]))
+            else:
+                datos.append(("Objetivo de Aprendizaje: PENDIENTE DE CONFIRMACIÓN.",
+                              f"{oa['motivo']} Propuesta sin verificar: {oa['texto'] or '—'}"))
         if c.get("distribucion_tiempo"):
             datos.append(("Tiempo sugerido:", " · ".join(f"{k}: {v} min" for k, v in c["distribucion_tiempo"].items())))
         self._recuadro(doc, datos)

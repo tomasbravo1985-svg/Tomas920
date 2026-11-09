@@ -57,6 +57,7 @@ class Expediente:
     encargo: Encargo
     estado: str = "nuevo"
     historial_previo: list[dict] = field(default_factory=list)  # lo llena ARCHIVO
+    lecciones: list[dict] = field(default_factory=list)         # lo llena ARCHIVO: correcciones aprobadas
     contenido: dict = field(default_factory=dict)               # lo llena ATENEA
     diseno: dict = field(default_factory=dict)                  # lo llena BAUHAUS: sopa y crucigrama
     archivos: dict = field(default_factory=dict)                # lo llena BAUHAUS: {"docx": ..., "pdf": ...}

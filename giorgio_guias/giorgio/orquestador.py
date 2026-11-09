@@ -33,16 +33,20 @@ def producir_guia(encargo: Encargo, archivo, atenea, bauhaus, revisor,
             exp.cambiar_estado("aprobado")
             return archivo.guardar(exp)  # 5. Guardar la versión aprobada
 
-        if exp.intentos_correccion >= correcciones_maximas:
+        # Cada observación indica quién debe corregirla.
+        responsables = {o["responsable"] for o in exp.revision.get("observaciones", [])}
+        # Si nadie de los agentes puede arreglarlo (ej.: falta una foto), no tiene sentido insistir.
+        se_puede_corregir = responsables & {"atenea", "bauhaus"}
+        if exp.intentos_correccion >= correcciones_maximas or not se_puede_corregir:
             exp.cambiar_estado("requiere_profesor")
             exp.anotar("orquestador", "profesor", "aviso",
                        "La guía no pasó la revisión. Revisa las observaciones.")
+            if hasattr(archivo, "registrar_intento"):
+                archivo.registrar_intento(exp)   # ARCHIVO anota los problemas para aprender
             return exp
 
         exp.intentos_correccion += 1
         exp.cambiar_estado("con_observaciones")
-        # Cada observación indica quién debe corregirla.
-        responsables = {o["responsable"] for o in exp.revision.get("observaciones", [])}
         if "atenea" in responsables:
             exp = atenea.trabajar(exp)   # ATENEA corrige el contenido
         # BAUHAUS siempre vuelve a diseñar al inicio de la siguiente vuelta.

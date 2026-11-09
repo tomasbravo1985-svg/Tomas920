@@ -3,10 +3,12 @@
 Sistema de cuatro agentes que fabrica guías escolares (Word y PDF) para la
 **Escuela Rebeca Matte Bello**, Renca.
 
-> Estado: **Etapa 2 lista (modo manual).** Los cuatro agentes funcionan y crean
-> una guía completa en Word y PDF, con su solucionario. Falta la interfaz con botones.
+> Estado: **Etapa 3 lista (mejoras de calidad).** Banco de imágenes reales, logo
+> reutilizable, verificación de OA, REVISOR ampliado y memoria de correcciones.
+> Falta la interfaz con botones.
 >
-> 👉 Mira el resultado en la carpeta **`ejemplos/`** (guía de Historia 6.º C).
+> 👉 Mira los resultados en **`ejemplos/`**: la guía piloto original y la versión `_v2`
+> con su `INFORME_REVISION_v2.md`.
 
 ## Los cuatro agentes
 
@@ -33,9 +35,35 @@ Cómo conversan entre ellos: ver `docs/comunicacion_agentes.md`.
 
 Para probar sin guardar en el archivo, agrega `--prueba` al final.
 
+## Comandos para el profesor
+
+| Quiero...                                | Escribo                                                  |
+|------------------------------------------|----------------------------------------------------------|
+| Guardar el logo (una sola vez)           | `python recursos.py logo ruta/al/logo.png`               |
+| Saber qué imágenes faltan                | `python recursos.py pendientes`                          |
+| Incorporar fotos dejadas en `recursos/entrada/` | `python recursos.py importar`                     |
+| Agregar una foto con su fuente           | `python recursos.py agregar foto.jpg --id nombre --fuente "..." --licencia "..."` |
+| Ver los OA verificados                   | `python curriculo.py lista`                              |
+| Ver correcciones propuestas              | `python memoria.py lista`                                |
+| Aprobar una corrección para el futuro    | `python memoria.py aprobar 3`                            |
+| Dar una indicación permanente            | `python memoria.py agregar "Usar ejemplos de Renca"`     |
+
+Tus archivos originales **nunca se mueven ni se sobrescriben**: el sistema guarda copias.
+
 ## Qué revisa REVISOR automáticamente
 
-- Que estén las 9 secciones y el objetivo, con cantidad suficiente de preguntas.
+- **Contenido:** las 9 secciones y el objetivo, con cantidad suficiente de preguntas.
+- **Claridad y dificultad:** instrucciones con verbo de acción y no muy largas; legibilidad
+  de la lectura según el nivel (índice INFLESZ); oraciones largas y palabras difíciles;
+  preguntas dobles; alternativas repetidas o que delatan la respuesta; pistas que contienen
+  la respuesta; palabras absolutas en verdadero o falso.
+- **Imágenes:** faltantes (detienen la entrega y se piden), provisorias, sin fuente,
+  de baja resolución o sin contraste para blanco y negro; logo ausente.
+- **Diagramación:** páginas casi vacías, títulos sueltos al final de página, actividades
+  fuera de orden, imágenes que no llegaron al PDF, exceso de páginas.
+- **Objetivos de aprendizaje:** solo "verificado" si coincide con el registro oficial;
+  si no, "pendiente de confirmación".
+- **Lecciones aprobadas:** aplica las reglas que el profesor aprobó (ej.: palabras prohibidas).
 - Selección única: exactamente 4 alternativas y respuestas que no sean siempre la misma letra.
 - Verdadero o falso: que haya algunas falsas, con su corrección.
 - Sopa de letras: busca cada palabra él mismo; debe aparecer **exactamente una vez**.
@@ -51,6 +79,7 @@ giorgio_guias/
 ├── contenidos/        ← textos de cada guía (los escribe Claude Code)
 ├── crear_guia.py      ← la orden para fabricar una guía
 ├── herramientas/      ← dibujos de prueba
+├── recursos.py / memoria.py / curriculo.py ← comandos del profesor
 ├── config/            ← AJUSTES que puedes editar (escuela, formato, 5 guías semanales)
 ├── giorgio/           ← el programa
 │   ├── agentes/       ← un archivo por agente
@@ -75,7 +104,7 @@ giorgio_guias/
    python comprobar_entorno.py
    python -m pytest
    ```
-3. Si ves `Todo listo.` y `39 passed`, todo funciona.
+3. Si ves `Todo listo.` y `53 passed`, todo funciona.
 
 ## Reglas de seguridad
 

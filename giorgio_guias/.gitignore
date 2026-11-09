@@ -9,3 +9,7 @@ datos/archivo/*
 !datos/archivo/.gitkeep
 datos/borradores/*
 !datos/borradores/.gitkeep
+# Bandeja de entrada: las fotos originales del profesor se quedan en su computador
+# (el sistema guarda una copia en recursos/imagenes/)
+recursos/entrada/*
+!recursos/entrada/PEDIDO_DE_IMAGENES.md
