@@ -1,0 +1,53 @@
+# ============================================================
+#  FORMATO DE CADA GUÍA
+#  BAUHAUS diseña con estas reglas. REVISOR las comprueba.
+# ============================================================
+
+[pagina]
+tamano = "carta"            # 21,59 x 27,94 cm
+orientacion = "vertical"
+caras_minimas = 4
+escala_de_grises = true     # imágenes pensadas para impresora en blanco y negro
+duracion_minutos = 90
+
+[encabezado]
+campos = ["Nombre", "Curso", "Fecha"]
+
+# Secciones obligatorias, en este orden.
+# "id" es el nombre interno; "titulo" es lo que verá el estudiante.
+[[secciones]]
+id = "actividad_inicial"
+titulo = "Actividad inicial"
+
+[[secciones]]
+id = "sopa_de_letras"
+titulo = "Actividad 2: Sopa de letras"
+
+[[secciones]]
+id = "crucigrama"
+titulo = "Actividad 3: Crucigrama"
+
+[[secciones]]
+id = "lectura"
+titulo = "Lectura breve y preguntas de comprensión"
+
+[[secciones]]
+id = "analisis_imagenes"
+titulo = "Análisis de imágenes"
+
+[[secciones]]
+id = "seleccion_unica"
+titulo = "Selección única"
+alternativas = 4
+
+[[secciones]]
+id = "verdadero_falso"
+titulo = "Verdadero o falso"
+
+[[secciones]]
+id = "aplicacion"
+titulo = "Actividad de aplicación"
+
+[[secciones]]
+id = "ticket_salida"
+titulo = "Ticket de salida"

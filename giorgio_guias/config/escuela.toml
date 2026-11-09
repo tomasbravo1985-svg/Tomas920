@@ -1,0 +1,21 @@
+# ============================================================
+#  DATOS DE LA ESCUELA (encabezado institucional de cada guía)
+#  Puedes cambiar los textos que están entre comillas.
+# ============================================================
+
+[escuela]
+nombre = "Escuela Rebeca Matte Bello"
+comuna = "Renca"
+region = "Región Metropolitana"
+pais = "Chile"
+# Pon aquí el logo cuando lo tengas (imagen PNG o JPG):
+logo = "recursos/logo/logo_escuela.png"
+
+[docente]
+# Solo el nombre del profesor. Nunca datos de estudiantes.
+nombre = ""   # escribe tu nombre aquí si quieres que aparezca
+
+[privacidad]
+# Las guías dejan "Nombre" en blanco para que cada estudiante lo escriba a mano.
+# El programa NUNCA guarda nombres, RUT ni notas de estudiantes.
+guardar_datos_de_estudiantes = false

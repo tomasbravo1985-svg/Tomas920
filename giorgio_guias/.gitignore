@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Documentos generados y archivo personal: se quedan en tu computador
+salida/*
+!salida/.gitkeep
+datos/archivo/*
+!datos/archivo/.gitkeep
+datos/borradores/*
+!datos/borradores/.gitkeep

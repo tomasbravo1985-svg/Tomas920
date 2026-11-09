@@ -1,0 +1,29 @@
+# ============================================================
+#  AJUSTES DEL SISTEMA
+# ============================================================
+
+[revision]
+# Cuántas veces puede REVISOR devolver una guía antes de pedir ayuda al profesor.
+correcciones_maximas = 2
+
+[almacenamiento]
+# "local" = carpeta de tu computador. "google_drive" queda preparado para más adelante.
+tipo = "local"
+carpeta_archivo = "datos/archivo"
+carpeta_salida = "salida"
+
+[contenido]
+# Quién escribe el texto de las guías (pendiente de tu decisión):
+#   "manual"     = Claude Code redacta el contenido en esta conversación (gratis para ti).
+#   "api_claude" = la app llama a Claude por internet (TIENE COSTO; requiere tu autorización).
+motor = "manual"
+
+[exportacion]
+# LibreOffice (gratuito) convierte el Word a PDF.
+pdf_con = "libreoffice"
+
+[seguridad]
+publicar_en_internet = false
+enviar_correos = false
+acceder_kimche = false
+usar_servicios_pagados = false

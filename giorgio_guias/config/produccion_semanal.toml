@@ -1,0 +1,28 @@
+# ============================================================
+#  PRODUCCIÓN SEMANAL: las 5 guías de cada semana
+# ============================================================
+
+[[guias]]
+asignatura = "Historia, Geografía y Ciencias Sociales"
+cursos = ["6.º C"]
+numero = 1
+
+[[guias]]
+asignatura = "Historia, Geografía y Ciencias Sociales"
+cursos = ["6.º C"]
+numero = 2
+
+[[guias]]
+asignatura = "Tecnología"
+cursos = ["6.º C"]
+numero = 1
+
+[[guias]]
+asignatura = "Proyecto de Regeneración"
+cursos = ["5.º", "6.º"]
+numero = 1
+
+[[guias]]
+asignatura = "Proyecto de Regeneración"
+cursos = ["7.º", "8.º"]
+numero = 1
