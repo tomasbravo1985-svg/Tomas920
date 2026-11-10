@@ -1,15 +1,15 @@
 # Inventario de recursos pendientes — GIORGIO GUÍAS
 
-Actualizado: 10-11-2026 · Guía afectada: Historia 6.º C, guía 1 (versión 2)
+Actualizado: 10-11-2026 (fotografías obtenidas) · Guía afectada: Historia 6.º C, guía 1 (versión 2)
 
 | # | Recurso | Estado | ¿Lo puedo obtener solo? | Qué necesito de ti |
 |---|---|---|---|---|
 | 1 | **Logo institucional** | ✅ **RECIBIDO** (10-11-2026) | — | Nada. Quedó guardado una vez en `recursos/logo/` y se usará automáticamente desde la próxima versión. |
 | 2 | **Documento curricular oficial** (Historia 6.º básico, para confirmar el OA 12) | ⏳ Pendiente | ❌ **No por ahora.** curriculumnacional.cl ya está autorizado en el entorno, pero el sitio no responde a conexiones desde servidores externos (probado el 10-11-2026). | El **PDF del Programa de Estudio o de las Bases Curriculares** de Historia, Geografía y Ciencias Sociales 6.º básico, descargado desde tu computador. |
-| 3 | Fotografía: **desierto de Atacama** | ⏳ Provisoria (dibujo) | ⚠️ **Sí, si autorizas Wikimedia Commons** (fotos con licencia libre). Hoy está bloqueado. | Tu autorización para Wikimedia, **o** la foto. |
-| 4 | Fotografía: **valle de la zona central** | ⏳ Provisoria (dibujo) | ⚠️ Igual que la anterior | Igual que la anterior |
-| 5 | Fotografía: **bosque lluvioso del sur** | ⏳ Provisoria (dibujo) | ⚠️ Igual que la anterior | Igual que la anterior |
-| 6 | Fotografía: **glaciar o paisaje antártico** | ⏳ Provisoria (dibujo) | ⚠️ Igual que la anterior | Igual que la anterior |
+| 3 | Fotografía: **desierto de Atacama** | ✅ **OBTENIDA** (Wikimedia Commons, ESO, CC BY 4.0) | ✅ Sí (autorizado el 10-11-2026) | Nada. Revisar si te parece adecuada. |
+| 4 | Fotografía: **valle de la zona central** | ✅ **OBTENIDA** (Beatrice Murch, CC BY-SA 2.0) | ✅ Sí | Nada. |
+| 5 | Fotografía: **bosque lluvioso del sur** | ✅ **OBTENIDA** (LBM1948, CC BY-SA 4.0) | ✅ Sí | Nada. |
+| 6 | Fotografía: **glaciar / paisaje polar** | ✅ **OBTENIDA** (Diego Delso, CC BY-SA 3.0) | ✅ Sí | Nada. |
 
 ## Detalle
 
@@ -31,25 +31,28 @@ Actualizado: 10-11-2026 · Guía afectada: Historia 6.º C, guía 1 (versión 2)
   con su número de página: `python curriculo.py agregar ...`.
 - Mientras tanto, el OA 12 sigue **PENDIENTE DE CONFIRMACIÓN** y no se imprime en la guía del estudiante.
 
-### 3 a 6. Fotografías geográficas
-- **Fuente pública sugerida:** Wikimedia Commons. Sus fotos tienen licencias libres (CC BY,
-  CC BY-SA o dominio público) que **exigen citar al autor**; el sistema ya imprime la fuente bajo cada imagen.
-- **Para que yo las obtenga solo:** hay que autorizar en el entorno estos dos sitios:
-  `commons.wikimedia.org` (búsqueda y datos de licencia) y `upload.wikimedia.org` (descarga de la foto).
-  Hoy están bloqueados (probado el 10-11-2026).
-- **Si prefieres entregarlas tú:** déjalas en `recursos/entrada/` con estos nombres exactos y
-  ejecuta `python recursos.py importar`:
-  - `paisaje_desierto.jpg`
-  - `paisaje_mediterraneo.jpg`
-  - `paisaje_lluvioso.jpg`
-  - `paisaje_polar.jpg`
-- **Requisitos:** al menos 1200 píxeles de ancho, nítidas y con buen contraste (se imprimen en
-  blanco y negro). Anota de dónde salió cada foto.
-- El detalle de cada foto (qué debe mostrar y dónde buscarla) está en `recursos/entrada/PEDIDO_DE_IMAGENES.md`.
+### 3 a 6. Fotografías geográficas — obtenidas
+- Autorizaste Wikimedia Commons el 10-11-2026. Se agregaron al entorno `commons.wikimedia.org`
+  y `upload.wikimedia.org`.
+- Las 4 fotos se eligieron mirándolas, de 1920 px de ancho, y se revisó cómo quedan en
+  **blanco y negro**: todas son nítidas y con buen contraste.
+- Solo licencias libres que permiten adaptar (se convierten a gris): **CC BY y CC BY-SA**.
+  El autor y la licencia quedan en `recursos/catalogo.json` y en `recursos/CREDITOS_IMAGENES.md`.
+  BAUHAUS imprime el crédito bajo cada imagen.
+- Primero se probó una panorámica de 360° del desierto, pero tenía el suelo deformado y se
+  reemplazó. La anterior se conserva como copia; no se borró nada.
+- Los 4 dibujos provisorios siguen guardados en `recursos/imagenes/*.png`.
+- **Ojo para la versión 3:** el solucionario de la imagen A dice "cactus", y la foto real del
+  desierto no tiene cactus. Muestra cerros áridos y rocas sin vegetación. Hay que ajustar esa
+  respuesta esperada.
+- Herramienta reutilizable para futuras guías: `python herramientas/wikimedia.py <id> "File:Nombre.jpg"`.
+- **Nota técnica:** Wikimedia limita las consultas desde servidores compartidos (error 429).
+  La herramienta espera y reintenta sola, sin insistir en exceso.
 
 ## Resumen
 
-| Puedo obtenerlo automáticamente | Necesito que tú lo entregues o lo autorices |
+| Recurso | Estado |
 |---|---|
-| Fotografías: **sí**, desde Wikimedia Commons, **si autorizas** los 2 sitios | **Documento curricular**: el sitio oficial no responde desde aquí; necesito el PDF |
-| — | Logo: **ya recibido** |
+| Logo | ✅ Recibido |
+| 4 fotografías | ✅ Obtenidas desde Wikimedia Commons, con créditos |
+| **Documento curricular (OA 12)** | ⏳ **Único pendiente**: el sitio oficial no responde desde aquí; necesito el PDF |

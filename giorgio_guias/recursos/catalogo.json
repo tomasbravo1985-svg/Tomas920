@@ -1,58 +1,66 @@
 {
   "paisaje_desierto": {
     "id": "paisaje_desierto",
-    "tipo": "ilustracion_generada",
+    "tipo": "fotografia",
     "descripcion": "Fotografía del desierto de Atacama: paisaje árido, cielo despejado, idealmente con cactus candelabro o un oasis.",
-    "estado": "provisoria",
+    "estado": "disponible",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Desierto de Atacama»); revisar licencia CC y anotar autor.",
-    "fuente": "Dibujo provisorio",
-    "licencia": "",
-    "autor": "",
-    "archivo": "recursos/imagenes/paisaje_desierto.png",
+    "fuente": "Wikimedia Commons, ESO",
+    "licencia": "CC BY 4.0",
+    "autor": "ESO",
+    "archivo": "recursos/imagenes/paisaje_desierto_v2.jpg",
     "usado_en": [
       "Historia 6.º C guía 1"
-    ]
+    ],
+    "fecha_ingreso": "2026-11-10",
+    "pagina_fuente": "https://commons.wikimedia.org/wiki/File%3AAtacama_desert_mountains_%28dsc-5624-cc%29.jpg"
   },
   "paisaje_mediterraneo": {
     "id": "paisaje_mediterraneo",
-    "tipo": "ilustracion_generada",
+    "tipo": "fotografia",
     "descripcion": "Fotografía de un valle de la zona central: cerros, río o canal y campos de cultivo (viñedos o frutales).",
-    "estado": "provisoria",
+    "estado": "disponible",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Valle del Aconcagua» o «Valle de Colchagua»), o foto propia.",
-    "fuente": "Dibujo provisorio",
-    "licencia": "",
-    "autor": "",
-    "archivo": "recursos/imagenes/paisaje_mediterraneo.png",
+    "fuente": "Wikimedia Commons, Beatrice Murch",
+    "licencia": "CC BY-SA 2.0",
+    "autor": "Beatrice Murch",
+    "archivo": "recursos/imagenes/paisaje_mediterraneo.jpg",
     "usado_en": [
       "Historia 6.º C guía 1"
-    ]
+    ],
+    "fecha_ingreso": "2026-11-10",
+    "pagina_fuente": "https://commons.wikimedia.org/wiki/File%3AChilean_vineyard_in_Andes_foothills.jpg"
   },
   "paisaje_lluvioso": {
     "id": "paisaje_lluvioso",
-    "tipo": "ilustracion_generada",
+    "tipo": "fotografia",
     "descripcion": "Fotografía de bosque nativo lluvioso del sur de Chile (Valdivia, Chiloé): árboles altos, vegetación densa, humedad.",
-    "estado": "provisoria",
+    "estado": "disponible",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Bosque valdiviano»); o banco de imágenes de CONAF.",
-    "fuente": "Dibujo provisorio",
-    "licencia": "",
-    "autor": "",
-    "archivo": "recursos/imagenes/paisaje_lluvioso.png",
+    "fuente": "Wikimedia Commons, LBM1948",
+    "licencia": "CC BY-SA 4.0",
+    "autor": "LBM1948",
+    "archivo": "recursos/imagenes/paisaje_lluvioso.jpg",
     "usado_en": [
       "Historia 6.º C guía 1"
-    ]
+    ],
+    "fecha_ingreso": "2026-11-10",
+    "pagina_fuente": "https://commons.wikimedia.org/wiki/File%3ABosque_valdiviano.jpg"
   },
   "paisaje_polar": {
     "id": "paisaje_polar",
-    "tipo": "ilustracion_generada",
+    "tipo": "fotografia",
     "descripcion": "Fotografía de glaciar o paisaje antártico/patagónico: hielo, montañas nevadas, agua.",
-    "estado": "provisoria",
+    "estado": "disponible",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Glaciar Grey» o «Antártica chilena»); INACH tiene material educativo.",
-    "fuente": "Dibujo provisorio",
-    "licencia": "",
-    "autor": "",
-    "archivo": "recursos/imagenes/paisaje_polar.png",
+    "fuente": "Wikimedia Commons, Diego Delso",
+    "licencia": "CC BY-SA 3.0",
+    "autor": "Diego Delso",
+    "archivo": "recursos/imagenes/paisaje_polar.jpg",
     "usado_en": [
       "Historia 6.º C guía 1"
-    ]
+    ],
+    "fecha_ingreso": "2026-11-10",
+    "pagina_fuente": "https://commons.wikimedia.org/wiki/File%3AGlaciar_Grey%2C_Parque_Nacional_Torres_del_Paine%2C_Chile4.jpg"
   }
 }

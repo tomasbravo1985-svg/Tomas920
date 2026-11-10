@@ -130,6 +130,20 @@ def importar_entrada() -> list[str]:
     return importados
 
 
+def escribir_creditos() -> Path:
+    """Lista de créditos de todas las imágenes (autor, licencia y página de origen)."""
+    destino = CARPETA / "CREDITOS_IMAGENES.md"
+    lineas = ["# Créditos de las imágenes", "",
+              "Las licencias Creative Commons exigen citar al autor; las guías imprimen la fuente bajo cada imagen.", "",
+              "| Recurso | Archivo | Autor / fuente | Licencia | Origen |", "|---|---|---|---|---|"]
+    for f in cargar().values():
+        if f.get("estado") == "disponible":
+            lineas.append(f"| {f['id']} | {Path(f.get('archivo', '')).name} | {f.get('fuente', '')} | "
+                          f"{f.get('licencia', '')} | {f.get('pagina_fuente', '')} |")
+    destino.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    return destino
+
+
 def pendientes() -> list[dict]:
     return [f for f in cargar().values() if f.get("estado") in ("pendiente", "provisoria")]
 
