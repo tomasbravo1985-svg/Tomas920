@@ -212,7 +212,10 @@ def registrar_logo(origen: Path) -> dict:
                 anterior = LOGO.with_name(f"logo_anterior_{date.today().isoformat()}_{n}.png")
                 n += 1
             shutil.copy2(LOGO, anterior)
-        im.convert("RGBA").save(LOGO)
+        logo = im.convert("RGBA")
+        if logo.width > 1200:   # 1200 px bastan para imprimirlo nítido (2,6 cm ≈ 300 px a 300 ppp)
+            logo = logo.resize((1200, round(logo.height * 1200 / logo.width)), Image.LANCZOS)
+        logo.save(LOGO, optimize=True)
     return evaluar_calidad(LOGO, ancho_impreso_cm=2.6)
 
 
