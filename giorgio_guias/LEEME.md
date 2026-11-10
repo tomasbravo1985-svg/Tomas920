@@ -3,12 +3,20 @@
 Sistema de cuatro agentes que fabrica guías escolares (Word y PDF) para la
 **Escuela Rebeca Matte Bello**, Renca.
 
-> Estado: **Etapa 3 lista (mejoras de calidad).** Banco de imágenes reales, logo
-> reutilizable, verificación de OA, REVISOR ampliado y memoria de correcciones.
-> Falta la interfaz con botones.
+> Estado: **Etapa 4 lista (GG-001 y versión 2).** Extensión flexible, secuencia de
+> 90 minutos, diagramación automática medida página por página y control de tiempo
+> y nivel de pensamiento. Falta la interfaz con botones.
 >
-> 👉 Mira los resultados en **`ejemplos/`**: la guía piloto original y la versión `_v2`
-> con su `INFORME_REVISION_v2.md`.
+> 👉 Mira **`ejemplos/version_2/`**: guía, solucionario e `INFORME_CONTROL_CALIDAD.md`.
+> La guía piloto original sigue intacta en `ejemplos/`.
+
+## Reglas aprobadas
+
+Están en `config/reglas_aprobadas.toml` y ARCHIVO las registra solas en la memoria.
+
+- **GG-001 — Extensión flexible** (aprobada el 10-11-2026): mínimo 4 páginas carta vertical,
+  sin máximo rígido; la extensión depende del contenido, las actividades, las imágenes y los
+  espacios de respuesta.
 
 ## Los cuatro agentes
 
@@ -68,7 +76,13 @@ Tus archivos originales **nunca se mueven ni se sobrescriben**: el sistema guard
 - Verdadero o falso: que haya algunas falsas, con su corrección.
 - Sopa de letras: busca cada palabra él mismo; debe aparecer **exactamente una vez**.
 - Crucigrama: lee cada palabra letra por letra.
-- Tamaño carta vertical, mínimo 4 caras y ninguna página casi vacía.
+- **Tiempo (GG-001):** cada actividad trae sus minutos; deben sumar 90 y coincidir con el
+  trabajo estimado (lectura, preguntas, líneas). Sopa + crucigrama no más del 25 % de la clase.
+- **Nivel de pensamiento:** no más del 50 % de preguntas de solo recordar; debe haber análisis
+  y aplicación.
+- **Diagramación (medida en el PDF):** páginas casi vacías, desbordes, letra menor a 10 pt,
+  títulos sueltos, sopa partida, crucigrama separado de sus pistas, imágenes repartidas o
+  pequeñas, instrucciones separadas de su recuadro. Mínimo 4 páginas, sin máximo.
 - Que el tema no repita una guía ya archivada para ese curso.
 
 ## Qué hay en cada carpeta
@@ -104,7 +118,7 @@ giorgio_guias/
    python comprobar_entorno.py
    python -m pytest
    ```
-3. Si ves `Todo listo.` y `53 passed`, todo funciona.
+3. Si ves `Todo listo.` y `64 passed`, todo funciona.
 
 ## Reglas de seguridad
 

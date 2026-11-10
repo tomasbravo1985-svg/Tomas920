@@ -55,7 +55,7 @@ def main():
             for c in grupo:
                 regla = c.get("regla") or {}
                 extra = f"  [regla: {regla.get('tipo')} = {regla.get('valor')}]" if regla.get("valor") is not None else ""
-                print(f"  #{c['id']} {c['agente'].upper()} · {c['categoria']}: {c['descripcion']} (vista {c.get('veces', 1)} vez/veces){extra}")
+                print(f"  {c.get('codigo') or '#' + str(c['id'])} {c['agente'].upper()} · {c['categoria']}: {c['descripcion']} (vista {c.get('veces', 1)} vez/veces){extra}")
     elif a.orden == "reglas":
         for k, v in memoria.REGLAS.items():
             print(f"  {k}: {v}")

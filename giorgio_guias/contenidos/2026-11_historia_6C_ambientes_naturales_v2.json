@@ -1,0 +1,361 @@
+{
+  "encargo": {
+    "asignatura": "Historia, Geografía y Ciencias Sociales",
+    "cursos": [
+      "6.º C"
+    ],
+    "numero": 1,
+    "tema": "Los ambientes naturales de Chile"
+  },
+  "titulo": "Los ambientes naturales de Chile",
+  "oa": {
+    "codigo": "OA 12",
+    "nivel": "6",
+    "texto": "Comparar diversos ambientes naturales en Chile (desértico, altiplánico, costero, mediterráneo, andino, frío y lluvioso, patagónico y polar), considerando como criterios las oportunidades y dificultades que presentan y cómo las personas las han aprovechado y superado."
+  },
+  "objetivo": "Comparar ambientes naturales de Chile, reconociendo sus características y las oportunidades y dificultades que ofrecen a las personas.",
+  "actividad_inicial": {
+    "instruccion": "Desde Renca podemos ver el cerro Renca y, en días despejados, la cordillera de los Andes. Piensa en el lugar donde vives y responde.",
+    "preguntas": [
+      {
+        "texto": "¿Cómo es el clima en Renca en verano? ¿Y en invierno?",
+        "lineas": 3
+      },
+      {
+        "texto": "Si viajaras al extremo norte o al extremo sur de Chile, ¿qué cambios crees que verías en el paisaje?",
+        "lineas": 3
+      },
+      {
+        "texto": "Nombra un elemento natural de tu comuna (cerro, río, árbol, animal) y explica por qué es importante.",
+        "lineas": 3
+      }
+    ]
+  },
+  "sopa_de_letras": {
+    "instruccion": "Encuentra las 12 palabras de la lectura sobre los ambientes de Chile. Pueden estar en horizontal, vertical o diagonal. Marca cada palabra en la lista cuando la encuentres.",
+    "palabras": [
+      "Desierto",
+      "Altiplano",
+      "Valle",
+      "Bosque",
+      "Glaciar",
+      "Patagonia",
+      "Clima",
+      "Minería",
+      "Ganadería",
+      "Meseta",
+      "Antártica",
+      "Alerce"
+    ]
+  },
+  "crucigrama": {
+    "instruccion": "Lee cada pista y completa el crucigrama. Puedes buscar ayuda en la lectura de la página siguiente.",
+    "pistas": [
+      {
+        "palabra": "Atacama",
+        "pista": "Desierto del norte de Chile, uno de los más secos del mundo."
+      },
+      {
+        "palabra": "Llama",
+        "pista": "Animal del altiplano que entrega lana y sirve para cargar."
+      },
+      {
+        "palabra": "Oasis",
+        "pista": "Lugar con agua en medio del desierto, donde se puede cultivar."
+      },
+      {
+        "palabra": "Pesca",
+        "pista": "Actividad económica muy importante en el ambiente costero."
+      },
+      {
+        "palabra": "Agricultura",
+        "pista": "Cultivo de la tierra; es muy importante en la zona central."
+      },
+      {
+        "palabra": "Araucaria",
+        "pista": "Árbol nativo del sur de Chile que da piñones."
+      },
+      {
+        "palabra": "Viento",
+        "pista": "En la Patagonia sopla con muchísima fuerza."
+      },
+      {
+        "palabra": "Hielo",
+        "pista": "Cubre casi toda la Antártica."
+      },
+      {
+        "palabra": "Volcán",
+        "pista": "Montaña que puede expulsar lava; Chile tiene muchos en la cordillera."
+      }
+    ]
+  },
+  "lectura": {
+    "titulo": "Chile, un país de muchos paisajes",
+    "parrafos": [
+      "Chile es un país largo y angosto: mide más de 4.000 kilómetros de norte a sur. Por eso tiene climas y paisajes muy distintos. A cada uno de estos espacios lo llamamos ambiente natural.",
+      "En el norte está el ambiente desértico. El desierto de Atacama es uno de los lugares más secos del planeta: casi nunca llueve y durante el día hace mucho calor, pero las noches son frías. Aun así, las personas han aprendido a vivir allí. Cultivan en los oasis, donde hay agua, y trabajan en la minería, porque el suelo tiene cobre y otros minerales.",
+      "Más arriba, en la cordillera, se encuentra el altiplano. Es una meseta alta, fría y con poco oxígeno. Allí los pueblos aymara crían llamas y alpacas, que les entregan lana, carne y transporte.",
+      "A lo largo de todo el país, junto al océano Pacífico, se extiende el ambiente costero. Allí muchas familias viven de la pesca y del trabajo en los puertos.",
+      "En la zona central, donde está Renca, el ambiente es mediterráneo. Tiene cuatro estaciones bien marcadas: veranos calurosos y secos, e inviernos fríos y lluviosos. Sus valles fértiles permiten la agricultura, y por eso aquí vive la mayor parte de la población del país.",
+      "Hacia el sur, el ambiente es frío y lluvioso. Llueve gran parte del año y crecen bosques nativos con árboles como la araucaria y el alerce. Las personas se dedican a la ganadería, la pesca y la producción de madera, aunque deben enfrentar el frío, el barro y las inundaciones.",
+      "En el extremo sur están la Patagonia y la Antártica. En la Patagonia sopla un viento muy fuerte y hay grandes glaciares. La Antártica está cubierta casi totalmente de hielo. Son lugares difíciles para vivir, pero sus personas crían ovejas, reciben turistas y realizan investigaciones científicas.",
+      "En todos estos ambientes, las personas han usado su creatividad para aprovechar las oportunidades de la naturaleza y superar sus dificultades."
+    ],
+    "preguntas": [
+      {
+        "texto": "¿Por qué Chile tiene paisajes tan distintos?",
+        "lineas": 2,
+        "respuesta": "Porque es un país muy largo (más de 4.000 km de norte a sur) y eso produce climas distintos."
+      },
+      {
+        "texto": "¿Qué actividades realizan las personas en el desierto de Atacama?",
+        "lineas": 2,
+        "respuesta": "Cultivan en los oasis y trabajan en la minería."
+      },
+      {
+        "texto": "¿Por qué crees que la mayor parte de la población vive en la zona central?",
+        "lineas": 3,
+        "respuesta": "Porque su clima es templado y sus valles fértiles permiten la agricultura (respuesta abierta bien fundamentada)."
+      },
+      {
+        "texto": "Nombra una dificultad del ambiente frío y lluvioso y una forma en que las personas podrían enfrentarla.",
+        "lineas": 3,
+        "respuesta": "Ej.: inundaciones o frío; construir casas con techos inclinados, calefacción, canales de drenaje."
+      },
+      {
+        "texto": "¿En cuál de estos ambientes te gustaría vivir? Explica por qué.",
+        "lineas": 3,
+        "respuesta": "Respuesta personal; debe nombrar al menos una característica del ambiente elegido."
+      }
+    ]
+  },
+  "analisis_imagenes": {
+    "instruccion": "Observa las cuatro imágenes. Completa la tabla indicando qué ambiente natural representa cada una, una característica que observas, una oportunidad y una dificultad para las personas.",
+    "imagenes": [
+      {
+        "recurso": "paisaje_desierto",
+        "pie": "Imagen A"
+      },
+      {
+        "recurso": "paisaje_mediterraneo",
+        "pie": "Imagen B"
+      },
+      {
+        "recurso": "paisaje_lluvioso",
+        "pie": "Imagen C"
+      },
+      {
+        "recurso": "paisaje_polar",
+        "pie": "Imagen D"
+      }
+    ],
+    "tabla": {
+      "columnas": [
+        "Imagen",
+        "Ambiente natural",
+        "Una característica",
+        "Una oportunidad",
+        "Una dificultad"
+      ],
+      "filas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "respuestas": {
+      "A": "Desértico: sin lluvia, cactus, mucho sol. Oportunidad: minería, energía solar. Dificultad: falta de agua.",
+      "B": "Mediterráneo: valles, cerros, río, cultivos. Oportunidad: agricultura. Dificultad: sequía en verano.",
+      "C": "Frío y lluvioso: lluvia, bosques densos. Oportunidad: madera, ganadería. Dificultad: inundaciones, frío.",
+      "D": "Polar/patagónico: hielo, glaciares, montañas nevadas. Oportunidad: turismo, ciencia. Dificultad: frío extremo, aislamiento."
+    },
+    "preguntas": [
+      {
+        "texto": "Según las imágenes, ¿qué ambiente presenta más dificultades para vivir? Justifica con dos elementos que observes.",
+        "lineas": 3,
+        "respuesta": "Ej.: el polar (D), porque hay hielo y montañas nevadas: hace mucho frío y es difícil cultivar o construir."
+      }
+    ]
+  },
+  "seleccion_unica": {
+    "instruccion": "Lee cada pregunta y encierra en un círculo la letra de la alternativa correcta. Solo una es correcta.",
+    "preguntas": [
+      {
+        "texto": "¿Qué ambiente natural se encuentra en el norte de Chile?",
+        "alternativas": [
+          "Frío y lluvioso",
+          "Desértico",
+          "Polar",
+          "Mediterráneo"
+        ],
+        "correcta": "B"
+      },
+      {
+        "texto": "¿Qué animales crían los pueblos aymara en el altiplano?",
+        "alternativas": [
+          "Llamas y alpacas",
+          "Pingüinos y focas",
+          "Vacas y caballos",
+          "Huemules y pumas"
+        ],
+        "correcta": "A"
+      },
+      {
+        "texto": "¿Por qué en la zona central vive la mayor parte de la población?",
+        "alternativas": [
+          "Porque está lejos de la cordillera y del mar",
+          "Porque está cubierta de hielo casi todo el año",
+          "Porque tiene valles fértiles y un clima templado",
+          "Porque allí casi nunca llueve durante el año"
+        ],
+        "correcta": "C"
+      },
+      {
+        "texto": "¿Cuál es una característica del ambiente frío y lluvioso?",
+        "alternativas": [
+          "Casi nunca llueve",
+          "Tiene bosques nativos",
+          "Tiene poco oxígeno",
+          "Está cubierto de arena"
+        ],
+        "correcta": "B"
+      },
+      {
+        "texto": "Un oasis es...",
+        "alternativas": [
+          "un volcán activo",
+          "un glaciar del sur",
+          "un tipo de llama",
+          "un lugar con agua en el desierto"
+        ],
+        "correcta": "D"
+      },
+      {
+        "texto": "¿Qué actividad permite aprovechar el ambiente antártico?",
+        "alternativas": [
+          "La investigación científica",
+          "El cultivo de uvas",
+          "La minería del cobre",
+          "La pesca en oasis"
+        ],
+        "correcta": "A"
+      }
+    ]
+  },
+  "verdadero_falso": {
+    "instruccion": "Escribe V si la afirmación es verdadera o F si es falsa. Corrige las falsas en la línea de abajo.",
+    "afirmaciones": [
+      {
+        "texto": "Chile mide más de 4.000 kilómetros de norte a sur.",
+        "respuesta": true
+      },
+      {
+        "texto": "En el desierto de Atacama llueve con mucha frecuencia.",
+        "respuesta": false,
+        "correccion": "En el desierto de Atacama casi nunca llueve."
+      },
+      {
+        "texto": "Renca se ubica en una zona de clima mediterráneo.",
+        "respuesta": true
+      },
+      {
+        "texto": "En el altiplano hay mucho oxígeno y hace calor.",
+        "respuesta": false,
+        "correccion": "En el altiplano hay poco oxígeno y hace frío."
+      },
+      {
+        "texto": "La araucaria es un árbol nativo del sur de Chile.",
+        "respuesta": true
+      },
+      {
+        "texto": "En la Patagonia casi no hay viento.",
+        "respuesta": false,
+        "correccion": "En la Patagonia sopla un viento muy fuerte."
+      }
+    ]
+  },
+  "aplicacion": {
+    "titulo": "Una postal desde Chile",
+    "instruccion": "Elige un ambiente natural de Chile distinto al de Renca. Imagina que estás de viaje allí y envías una postal a un amigo o amiga.",
+    "pasos": [
+      "En el recuadro, dibuja el paisaje del ambiente que elegiste.",
+      "En las líneas, escribe tu mensaje. Incluye: dos características del ambiente, una oportunidad y una dificultad para las personas que viven allí.",
+      "Compara: ¿en qué se parece o se diferencia este lugar de Renca?"
+    ],
+    "recuadro_dibujo": true,
+    "lineas": 6
+  },
+  "ticket_salida": {
+    "preguntas": [
+      {
+        "texto": "Hoy aprendí que...",
+        "lineas": 2
+      },
+      {
+        "texto": "Una diferencia entre el ambiente desértico y el frío y lluvioso es...",
+        "lineas": 2
+      }
+    ],
+    "autoevaluacion": "¿Cómo me fue hoy?   ☐ Muy bien     ☐ Bien     ☐ Me costó"
+  },
+  "version": 2,
+  "basada_en": "2026-11_historia_6C_ambientes_naturales.json",
+  "cambios_v2": [
+    "Secuencia pedagógica de 90 minutos con tiempo, habilidad y propósito por actividad (GG-001).",
+    "Selección única, pregunta 3: alternativas de largo similar (la correcta ya no se delata).",
+    "Verdadero o falso, afirmación 2: sin la palabra 'todos', que delataba la respuesta.",
+    "Sopa de letras: las 12 palabras ahora aparecen en la lectura (vocabulario con sentido, no relleno).",
+    "Lectura: se agrega el ambiente costero (mencionado en el OA y en el crucigrama).",
+    "Análisis de imágenes: se agrega una pregunta de análisis con justificación.",
+    "OA registrado como ficha; queda PENDIENTE hasta verificarlo con curriculumnacional.cl.",
+    "Imágenes pedidas por su identificador del banco de recursos."
+  ],
+  "secuencia": {
+    "actividad_inicial": {
+      "minutos": 8,
+      "habilidad": "Activar conocimientos",
+      "proposito": "Conectar el tema con el paisaje de Renca."
+    },
+    "sopa_de_letras": {
+      "minutos": 8,
+      "habilidad": "Vocabulario",
+      "proposito": "Reconocer el vocabulario clave que aparecerá en la lectura."
+    },
+    "crucigrama": {
+      "minutos": 9,
+      "habilidad": "Comprender",
+      "proposito": "Relacionar conceptos con su definición."
+    },
+    "lectura": {
+      "minutos": 20,
+      "habilidad": "Comprender e inferir",
+      "proposito": "Caracterizar cada ambiente y sus oportunidades y dificultades."
+    },
+    "analisis_imagenes": {
+      "minutos": 15,
+      "habilidad": "Analizar",
+      "proposito": "Identificar ambientes a partir de evidencias visuales y compararlos."
+    },
+    "seleccion_unica": {
+      "minutos": 7,
+      "habilidad": "Comprender",
+      "proposito": "Comprobar la comprensión de los conceptos centrales."
+    },
+    "verdadero_falso": {
+      "minutos": 6,
+      "habilidad": "Evaluar",
+      "proposito": "Detectar y corregir afirmaciones erróneas."
+    },
+    "aplicacion": {
+      "minutos": 12,
+      "habilidad": "Aplicar y crear",
+      "proposito": "Comunicar lo aprendido comparando un ambiente con Renca."
+    },
+    "ticket_salida": {
+      "minutos": 5,
+      "habilidad": "Metacognición",
+      "proposito": "Evaluar el logro del objetivo y la percepción del estudiante."
+    }
+  }
+}

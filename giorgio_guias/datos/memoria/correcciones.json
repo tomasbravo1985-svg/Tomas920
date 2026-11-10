@@ -1,0 +1,31 @@
+[
+  {
+    "codigo": "GG-001",
+    "fecha": "2026-11-10",
+    "origen": "profesor",
+    "agente": "todos",
+    "categoria": "Extensión flexible",
+    "descripcion": "Todas las guías tendrán un mínimo de cuatro páginas tamaño carta, orientación vertical. La extensión final será flexible y dependerá de los contenidos, las actividades, las imágenes y los espacios de respuesta. No se establece un máximo rígido de páginas.",
+    "estado": "aprobada",
+    "fecha_aprobacion": "2026-11-10",
+    "aprobada_por": "Profesor (Escuela Rebeca Matte Bello)",
+    "regla": {
+      "tipo": "extension_flexible",
+      "valor": {
+        "paginas_minimas": 4,
+        "paginas_maximas": 0,
+        "duracion_clase_minutos": 90,
+        "tolerancia_minutos": 5,
+        "relleno_maximo": 0.25,
+        "recordar_maximo": 0.5,
+        "ocupacion_minima_pagina": 0.4,
+        "ocupacion_minima_ultima": 0.25,
+        "letra_minima_pt": 10,
+        "ancho_minimo_imagen_cm": 6.5
+      }
+    },
+    "guias": [],
+    "veces": 1,
+    "id": 1
+  }
+]

@@ -6,13 +6,14 @@ from pathlib import Path
 import pytest
 
 from giorgio.agentes import Archivo, Atenea, Bauhaus, Revisor
-from giorgio.agentes.bauhaus import buscar_libreoffice
+from giorgio.agentes.bauhaus import DISTRIBUCIONES, buscar_libreoffice
 from giorgio.almacenamiento.local import AlmacenLocal
 from giorgio.configuracion import RAIZ
 from giorgio.expediente import Encargo
 from giorgio.orquestador import producir_guia
 
-EJEMPLO = RAIZ / "contenidos" / "2026-11_historia_6C_ambientes_naturales.json"
+EJEMPLO = RAIZ / "contenidos" / "2026-11_historia_6C_ambientes_naturales_v2.json"
+DISTRIBUCION_EJEMPLO = DISTRIBUCIONES[7]   # la que BAUHAUS elige para el ejemplo (pruebas rápidas)
 pytestmark = pytest.mark.skipif(not buscar_libreoffice(), reason="LibreOffice no instalado")
 
 
@@ -33,9 +34,16 @@ def test_guia_de_ejemplo_se_aprueba_y_archiva(tmp_path):
 
 
 def test_no_repite_un_tema_ya_archivado(tmp_path):
+    """Una guía NUEVA con el mismo tema se rechaza (una nueva VERSIÓN sí se permite)."""
+    datos = json.loads(EJEMPLO.read_text(encoding="utf-8"))
+    datos.pop("basada_en")
+    otra = tmp_path / "otra.json"
+    otra.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
     archivo = Archivo(AlmacenLocal(tmp_path / "archivo"))
-    producir_guia(_encargo(), archivo, Atenea(), Bauhaus(tmp_path / "s1"), Revisor())
-    exp = producir_guia(_encargo(), archivo, Atenea(), Bauhaus(tmp_path / "s2"), Revisor())
+    rapido = [DISTRIBUCION_EJEMPLO]
+    producir_guia(_encargo(), archivo, Atenea(), Bauhaus(tmp_path / "s1", rapido), Revisor())
+    enc = Encargo(**datos["encargo"], fuente_contenido=str(otra))
+    exp = producir_guia(enc, archivo, Atenea(), Bauhaus(tmp_path / "s2", rapido), Revisor())
     assert exp.estado == "requiere_profesor"
     assert any(o["seccion"] == "tema" for o in exp.revision["observaciones"])
 
@@ -48,7 +56,7 @@ def test_revisor_rechaza_contenido_incompleto(tmp_path):
     malo.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
     enc = Encargo(**datos["encargo"], fuente_contenido=str(malo))
     exp = producir_guia(enc, Archivo(AlmacenLocal(tmp_path / "a")), Atenea(),
-                        Bauhaus(tmp_path / "s"), Revisor(), correcciones_maximas=0)
+                        Bauhaus(tmp_path / "s", [DISTRIBUCION_EJEMPLO]), Revisor(), correcciones_maximas=0)
     assert exp.estado == "requiere_profesor"
     secciones = {o["seccion"] for o in exp.revision["observaciones"]}
     assert "verdadero_falso" in secciones
@@ -60,7 +68,7 @@ def test_word_respeta_el_orden_interno(tmp_path):
 
     from giorgio.word import ORDEN
     exp = producir_guia(_encargo(), Archivo(AlmacenLocal(tmp_path / "a")), Atenea(),
-                        Bauhaus(tmp_path / "s"), Revisor())
+                        Bauhaus(tmp_path / "s", [DISTRIBUCION_EJEMPLO]), Revisor())
     for clave in ("docx", "solucionario_docx"):
         cuerpo = Document(exp.archivos[clave]).element
         ns = cuerpo.tag.split("}")[0] + "}"

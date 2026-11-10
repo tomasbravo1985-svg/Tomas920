@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 from datetime import date
 
-from .configuracion import RAIZ
+from .configuracion import RAIZ, leer
 
 ARCHIVO_MEMORIA = RAIZ / "datos" / "memoria" / "correcciones.json"
 LECCIONES_MD = RAIZ / "contenidos" / "LECCIONES_APROBADAS.md"
@@ -25,10 +25,36 @@ REGLAS = {
     "max_palabras_oracion": "Máximo de palabras por oración en la lectura.",
     "legibilidad_minima": "Índice INFLESZ mínimo de la lectura.",
     "min_lineas_respuesta": "Mínimo de líneas para escribir en cada pregunta abierta.",
-    "paginas_maximas": "Máximo de caras de la guía.",
+    "extension_flexible": "GG-001: mínimo de caras, sin máximo rígido, tiempos para 90 minutos y diagramación.",
     "nota": "Indicación pedagógica o de diseño para ATENEA o BAUHAUS (texto libre).",
 }
 __doc__ += "".join(f"\n  - {k}: {v}" for k, v in REGLAS.items())
+
+
+def sincronizar_reglas_oficiales() -> list[dict]:
+    """Copia a la memoria las reglas de config/reglas_aprobadas.toml (si aún no están).
+    Así una regla aprobada oficialmente queda registrada UNA vez y se aplica siempre."""
+    oficiales = leer("reglas_aprobadas").get("reglas", [])
+    lista = cargar()
+    cambios = False
+    for r in oficiales:
+        existente = next((c for c in lista if c.get("codigo") == r["codigo"]), None)
+        datos = {"codigo": r["codigo"], "fecha": r["fecha_aprobacion"], "origen": "profesor",
+                 "agente": "todos", "categoria": r["nombre"], "descripcion": r["descripcion"],
+                 "estado": "aprobada", "fecha_aprobacion": r["fecha_aprobacion"],
+                 "aprobada_por": r.get("aprobada_por", "profesor"),
+                 "regla": {"tipo": r["tipo"], "valor": r.get("valor")}, "guias": [], "veces": 1}
+        if existente is None:
+            datos["id"] = _nuevo_id(lista)
+            lista.append(datos)
+            cambios = True
+        elif any(existente.get(k) != v for k, v in datos.items() if k not in ("guias", "veces")):
+            existente.update({k: v for k, v in datos.items() if k not in ("guias", "veces")})
+            cambios = True
+    if cambios:
+        _guardar(lista)
+        escribir_lecciones()
+    return [c for c in lista if c.get("codigo")]
 
 
 def cargar() -> list[dict]:
@@ -126,6 +152,9 @@ def reglas(lecciones: list[dict]) -> dict:
         if tipo == "palabras_prohibidas":
             resultado.setdefault(tipo, [])
             resultado[tipo] += [p.lower() for p in r.get("valor", [])]
+        elif tipo == "extension_flexible":
+            resultado.update(r.get("valor") or {})
+            resultado["extension_flexible"] = c.get("codigo", "GG")
         elif tipo and tipo != "nota":
             resultado[tipo] = r.get("valor")
     return resultado
@@ -144,6 +173,9 @@ def escribir_lecciones() -> None:
         regla = c.get("regla") or {}
         extra = "" if regla.get("tipo") in (None, "nota") else f"  (regla automática: {regla['tipo']} = {regla.get('valor')})"
         alcance = f" [solo {c['asignatura']}]" if c.get("asignatura") else ""
-        lineas.append(f"- **#{c['id']}** ({c['agente'].upper()}){alcance}: {c['descripcion']}{extra}")
+        etiqueta = c.get("codigo") or f"#{c['id']}"
+        if regla.get("tipo") == "extension_flexible":
+            extra = f"  (aprobada el {c.get('fecha_aprobacion')})"
+        lineas.append(f"- **{etiqueta}** ({c['agente'].upper()}){alcance}: {c['descripcion']}{extra}")
     LECCIONES_MD.parent.mkdir(parents=True, exist_ok=True)
     LECCIONES_MD.write_text("\n".join(lineas) + "\n", encoding="utf-8")

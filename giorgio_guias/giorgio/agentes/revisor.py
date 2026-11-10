@@ -12,9 +12,13 @@ REVISOR no confía en los demás: vuelve a buscar cada palabra en la sopa,
 lee el crucigrama letra por letra, abre el PDF y mira página por página.
 
 Grupos de controles:
-  1. Contenido completo           4. Imágenes y logo
-  2. Claridad y dificultad        5. Diagramación (Word y PDF)
-  3. Sopa de letras y crucigrama  6. Objetivos de aprendizaje y lecciones aprobadas
+  1. Contenido completo           5. Diagramación (Word y PDF, medida con maqueta.py)
+  2. Claridad y dificultad        6. Objetivos de aprendizaje y lecciones aprobadas
+  3. Sopa de letras y crucigrama  7. Tiempo (90 minutos) y nivel de pensamiento
+  4. Imágenes y logo
+
+Regla GG-001: mínimo 4 páginas, SIN máximo rígido. Cumplir el número de páginas
+NO basta para aprobar: todos los demás controles deben pasar.
 """
 from __future__ import annotations
 
@@ -24,7 +28,7 @@ from pathlib import Path
 from docx import Document
 from docx.shared import Cm
 
-from .. import configuracion, cuadriculas, memoria
+from .. import configuracion, cuadriculas, maqueta, memoria, tiempos
 from .. import legibilidad as leg
 from ..curriculo import niveles_de
 from ..expediente import Expediente
@@ -60,6 +64,7 @@ class Revisor(Agente):
             self._claridad(c)
             self._cuadriculas(exp)
             self._imagenes(exp)
+            self._tiempo_y_pensamiento(c)
         self._oa(c)
         self._documento(exp)
 
@@ -95,6 +100,7 @@ class Revisor(Agente):
                 elegido = grupo   # si hay 5.º y 6.º, ambos son del mismo grupo; 7.º-8.º manda si aparece
         exigencias = dict(elegido or self.niveles["basica_5_6"])
         reglas = memoria.reglas(exp.lecciones)
+        self.gg = reglas                                   # GG-001 y otras reglas aprobadas
         exigencias.update({k: v for k, v in reglas.items() if k in exigencias})
         exigencias["palabras_prohibidas"] = reglas.get("palabras_prohibidas", [])
         return exigencias
@@ -160,7 +166,9 @@ class Revisor(Agente):
                 self._ojo("verdadero_falso", f"La afirmación {i} es falsa pero no trae su corrección para el solucionario.")
 
         temas_previos = {h.get("tema", "").lower() for h in exp.historial_previo}
-        if exp.encargo.tema and exp.encargo.tema.lower() in temas_previos:
+        if exp.encargo.tema and exp.encargo.tema.lower() in temas_previos and c.get("basada_en"):
+            self.ok.append(f"Es la versión {c.get('version')} de una guía anterior (no cuenta como tema repetido).")
+        elif exp.encargo.tema and exp.encargo.tema.lower() in temas_previos:
             self._falla("atenea", "tema", f"El tema '{exp.encargo.tema}' ya se trabajó con este curso.")
         else:
             self.ok.append("El tema no repite guías anteriores del archivo.")
@@ -351,6 +359,49 @@ class Revisor(Agente):
         else:
             self._ojo("logo", "No hay logo guardado: se imprime un recuadro 'LOGO'. Usa: python recursos.py logo <archivo>")
 
+    # ================================================================ 7. tiempo y pensamiento
+    def _tiempo_y_pensamiento(self, c):
+        duracion = self.gg.get("duracion_clase_minutos", 90)
+        tolerancia = self.gg.get("tolerancia_minutos", 5)
+        secuencia = c.get("secuencia", {})
+        ids = [s["id"] for s in self.formato["secciones"]]
+        faltan = [i for i in ids if not secuencia.get(i, {}).get("minutos")]
+        if faltan:
+            self._falla("atenea", "secuencia", f"Faltan los minutos estimados de: {', '.join(faltan)}.")
+        propuestos = tiempos.minutos_propuestos(c)
+        total = sum(propuestos.values())
+        if secuencia and abs(total - duracion) > tolerancia:
+            self._falla("atenea", "secuencia", f"Los tiempos suman {total} min; la clase dura {duracion}.")
+
+        estimados = tiempos.estimar(c, self.exigencias.get("lectura_palabras_por_minuto", 100))
+        trabajo = round(sum(estimados.values()))
+        if trabajo < 0.7 * duracion:
+            self._falla("atenea", "tiempo", f"El trabajo estimado es de {trabajo} min: no alcanza para {duracion} min.")
+        elif trabajo > 1.3 * duracion:
+            self._falla("atenea", "tiempo", f"El trabajo estimado es de {trabajo} min: demasiado para {duracion} min.")
+        elif not 0.85 * duracion <= trabajo <= 1.15 * duracion:
+            self._ojo("tiempo", f"Trabajo estimado: {trabajo} min para una clase de {duracion} min.")
+        else:
+            self.ok.append(f"Tiempo: trabajo estimado {trabajo} min, coherente con {duracion} min.")
+        for sec, minutos in propuestos.items():
+            est = estimados.get(sec)
+            if est and minutos and not 0.5 <= est / minutos <= 2.0:
+                self._ojo("tiempo", f"{sec}: se asignaron {minutos} min pero el trabajo estimado es {est} min.")
+
+        relleno = (propuestos.get("sopa_de_letras", 0) + propuestos.get("crucigrama", 0)) / duracion
+        if relleno > self.gg.get("relleno_maximo", 0.25):
+            self._falla("atenea", "secuencia",
+                        f"Sopa y crucigrama ocupan el {int(relleno * 100)} % de la clase: es demasiado tiempo de repaso.")
+
+        dist = tiempos.distribucion(c)
+        resumen = ", ".join(f"{n} {int(dist[n] * 100)} %" for n in tiempos.NIVELES)
+        if dist["recordar"] > self.gg.get("recordar_maximo", 0.5):
+            self._falla("atenea", "pensamiento", f"Demasiadas preguntas de solo recordar ({resumen}).")
+        elif dist["analizar"] == 0 or dist["aplicar"] == 0:
+            self._falla("atenea", "pensamiento", f"Faltan preguntas de análisis o de aplicación ({resumen}).")
+        else:
+            self.ok.append(f"Nivel de pensamiento de {dist['total']} consignas: {resumen}.")
+
     # ================================================================ 6. OA
     def _oa(self, c):
         for oa in c.get("oa_verificacion", []):
@@ -394,33 +445,30 @@ class Revisor(Agente):
         lector = PdfReader(pdf)
         paginas = len(lector.pages)
         antes = len(self.obs)
-        textos = [(pagina.extract_text() or "") for pagina in lector.pages]
-        for i, t in enumerate(textos, start=1):
-            lineas = [x.strip() for x in t.splitlines() if x.strip()]
-            utiles = [x for x in lineas if not re.match(r"^P[áa]gina \d+ de \d+$", x)
-                      and not x.startswith(self._cabecera(exp))]
-            if len(lineas) < 5:
-                self._falla("bauhaus", "diagramacion", f"La página {i} quedó casi vacía (contenido cortado).")
-            if utiles and re.match(r"^ACTIVIDAD \d+", utiles[-1]):
-                self._falla("bauhaus", "diagramacion", f"La página {i} termina con un título suelto ({utiles[-1][:30]}).")
-        numeros = [int(n) for n in re.findall(r"ACTIVIDAD (\d+)", "\n".join(textos))]
-        if numeros != list(range(1, len(numeros) + 1)):
-            self._falla("bauhaus", "diagramacion", f"Las actividades no aparecen en orden en el PDF: {numeros}.")
+        analisis = maqueta.analizar(pdf, self.gg.get("letra_minima_pt", 10))
+        hallazgos = maqueta.problemas(analisis, self.gg)
+        for g in hallazgos["graves"]:
+            if "mínimo aprobado" not in g:
+                self._falla("bauhaus", "diagramacion", g)
+        for l in hallazgos["leves"]:
+            self._ojo("diagramacion", l)
         esperadas = sum(1 for i in exp.diseno.get("imagenes", []) if i["ruta"]) + (1 if exp.diseno.get("logo") else 0)
         en_pdf = sum(len(p.images) for p in lector.pages)
         if en_pdf < esperadas:
             self._falla("bauhaus", "imagenes", f"El PDF muestra {en_pdf} imágenes y se esperaban {esperadas}.")
         if len(self.obs) == antes:
-            self.ok.append("Diagramación: sin páginas vacías, títulos sueltos ni imágenes perdidas.")
+            ocupaciones = ", ".join(f"{int(p['ocupacion'] * 100)} %" for p in analisis["paginas"])
+            self.ok.append(f"Diagramación: sin páginas casi vacías, desbordes, títulos sueltos, letra pequeña "
+                           f"ni cuadrículas partidas (ocupación por página: {ocupaciones}).")
 
-        minimo = self.formato["pagina"]["caras_minimas"]
-        maximo = self.exigencias.get("paginas_maximas", 99)
+        minimo = self.gg.get("paginas_minimas", self.formato["pagina"]["caras_minimas"])
         if paginas < minimo:
-            self._falla("atenea", "extension", f"El PDF tiene {paginas} caras; se piden al menos {minimo}.")
+            self._falla("atenea", "extension", f"El PDF tiene {paginas} páginas; GG-001 exige al menos {minimo}.")
         else:
-            self.ok.append(f"PDF de {paginas} caras (mínimo {minimo}).")
-        if paginas > maximo:
-            self._ojo("extension", f"La guía tiene {paginas} caras (más de {maximo}); gasta más papel.")
+            self.ok.append(f"GG-001: {paginas} páginas (mínimo {minimo}, sin máximo rígido).")
+        maximo = self.gg.get("paginas_maximas") or 0
+        if maximo and paginas > maximo:
+            self._ojo("extension", f"La guía tiene {paginas} páginas (más de {maximo}).")
 
     @staticmethod
     def _cabecera(exp) -> str:

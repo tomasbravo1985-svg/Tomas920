@@ -22,25 +22,60 @@ ESTADOS = {"archivado": "✅ APROBADA Y GUARDADA", "requiere_profesor": "⚠️ 
 
 
 def escribir_informe(exp) -> Path | None:
-    """Informe de REVISOR en lenguaje sencillo, junto a la guía."""
+    """Informe de control de calidad en lenguaje sencillo, junto a la guía."""
+    from giorgio import tiempos
+    from giorgio.configuracion import leer
+
     carpeta = exp.archivos.get("carpeta")
     if not carpeta:
         return None
-    r = exp.revision
-    lineas = [f"# Informe de revisión — {exp.contenido.get('titulo', '')}", "",
-              f"**{', '.join(exp.encargo.cursos)} · {exp.encargo.asignatura}** · {exp.encargo.fecha}", "",
-              f"## Resultado: {ESTADOS.get(exp.estado, exp.estado)}", ""]
+    r, c = exp.revision, exp.contenido
+    titulos = {x["id"]: x["titulo"] for x in leer("formato_guia")["secciones"]}
+    version = f" (versión {c['version']})" if c.get("version") else ""
+    L = [f"# Informe de control de calidad — {c.get('titulo', '')}{version}", "",
+         f"**{', '.join(exp.encargo.cursos)} · {exp.encargo.asignatura}** · {exp.encargo.fecha}", "",
+         f"## Resultado: {ESTADOS.get(exp.estado, exp.estado)}", ""]
     if r.get("observaciones"):
-        lineas += ["## Problemas que impiden entregar", ""]
-        lineas += [f"- **{o['responsable'].upper()}** ({o['seccion']}): {o['problema']}" for o in r["observaciones"]]
-        lineas.append("")
+        L += ["## Problemas que impiden entregar", ""]
+        L += [f"- **{o['responsable'].upper()}** ({o['seccion']}): {o['problema']}" for o in r["observaciones"]]
+        L.append("")
+    if c.get("cambios_v2") or c.get("cambios"):
+        L += [f"## Cambios respecto de {c.get('basada_en', 'la versión anterior')}", ""]
+        L += [f"- {x}" for x in c.get("cambios_v2") or c.get("cambios")]
+        L.append("")
+
+    gg = [l for l in exp.lecciones if l.get("codigo")]
+    if gg:
+        L += ["## Reglas aprobadas aplicadas", ""]
+        L += [f"- **{l['codigo']}** ({l.get('categoria')}, aprobada el {l.get('fecha_aprobacion')})" for l in gg]
+        m = exp.diseno.get("maqueta", {})
+        if m.get("probadas"):
+            L.append(f"- BAUHAUS probó {m['probadas']} distribuciones y eligió la que empieza página nueva en: "
+                     f"{', '.join(titulos.get(x, x) for x in m['saltos']) or 'ninguna'} ({m['paginas']} páginas).")
+        L.append("")
+
+    secuencia = c.get("secuencia", {})
+    if secuencia:
+        estimados = tiempos.estimar(c)
+        L += ["## Tiempo de la clase (90 minutos)", "",
+              "| Actividad | Minutos asignados | Trabajo estimado | Habilidad |", "|---|---|---|---|"]
+        for sec, d in secuencia.items():
+            L.append(f"| {titulos.get(sec, sec)} | {d.get('minutos')} | {estimados.get(sec, '')} | {d.get('habilidad', '')} |")
+        L.append(f"| **Total** | **{sum(d.get('minutos', 0) for d in secuencia.values())}** | "
+                 f"**{round(sum(estimados.values()))}** | |")
+        L += ["", "_El trabajo estimado es una referencia según la cantidad de lectura, preguntas y líneas de respuesta._", ""]
+
+    dist = tiempos.distribucion(c)
+    L += ["## Nivel de pensamiento de las consignas", "",
+          " · ".join(f"{n.capitalize()}: {int(dist[n] * 100)} %" for n in tiempos.NIVELES) + f"  ({dist['total']} consignas)", ""]
     if r.get("advertencias"):
-        lineas += ["## Advertencias (revisar, no impiden entregar)", ""]
-        lineas += [f"- {a}" for a in r["advertencias"]]
-        lineas.append("")
-    lineas += ["## Controles superados", ""] + [f"- ✔ {x}" for x in r.get("comprobaciones", [])]
-    ruta = Path(carpeta) / "INFORME_REVISION.md"
-    ruta.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+        L += ["## Pendientes y advertencias (no impiden entregar)", ""]
+        L += [f"- {a}" for a in r["advertencias"]]
+        L.append("")
+    L += ["## Controles superados", ""] + [f"- ✔ {x}" for x in r.get("comprobaciones", [])]
+    L += ["", "_La aprobación exige pasar TODOS los controles: cumplir el número de páginas no basta (GG-001)._"]
+    ruta = Path(carpeta) / "INFORME_CONTROL_CALIDAD.md"
+    ruta.write_text("\n".join(L) + "\n", encoding="utf-8")
     return ruta
 
 

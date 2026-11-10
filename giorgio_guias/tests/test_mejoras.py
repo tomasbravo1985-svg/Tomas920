@@ -6,13 +6,13 @@ from PIL import Image, ImageDraw
 
 from giorgio import curriculo, legibilidad as leg, memoria, recursos
 from giorgio.agentes import Archivo, Atenea, Bauhaus, Revisor
-from giorgio.agentes.bauhaus import buscar_libreoffice
+from giorgio.agentes.bauhaus import DISTRIBUCIONES, buscar_libreoffice
 from giorgio.almacenamiento.local import AlmacenLocal
 from giorgio.configuracion import RAIZ
 from giorgio.expediente import Encargo
 from giorgio.orquestador import producir_guia
 
-EJEMPLO = RAIZ / "contenidos" / "2026-11_historia_6C_ambientes_naturales.json"
+EJEMPLO = RAIZ / "contenidos" / "2026-11_historia_6C_ambientes_naturales_v2.json"
 HISTORIA = "Historia, Geografía y Ciencias Sociales"
 con_libreoffice = pytest.mark.skipif(not buscar_libreoffice(), reason="LibreOffice no instalado")
 
@@ -54,7 +54,7 @@ def test_pedido_e_importacion_desde_la_bandeja(tmp_path):
     assert recursos.importar_entrada() == ["mapa_chile"]
     assert recursos.ruta_de("mapa_chile") is not None
     assert (recursos.ENTRADA / "mapa_chile.png").exists()   # el original sigue ahí
-    assert "No falta ninguna imagen" in recursos.PEDIDO.read_text(encoding="utf-8")
+    assert "mapa_chile" not in recursos.PEDIDO.read_text(encoding="utf-8")   # ya no se pide
 
 
 def test_calidad_detecta_imagen_pequena_y_sin_contraste(tmp_path):
@@ -159,7 +159,8 @@ def test_falta_imagen_detiene_y_pide_la_foto(tmp_path):
         d["analisis_imagenes"]["imagenes"][0] = {"recurso": "salar_atacama", "pie": "Imagen A",
                                                  "tipo": "fotografia", "descripcion": "Salar de Atacama"}
     archivo = Archivo(AlmacenLocal(tmp_path / "a"))
-    exp = producir_guia(contenido(tmp_path, foto_nueva), archivo, Atenea(), Bauhaus(tmp_path / "s"), Revisor())
+    exp = producir_guia(contenido(tmp_path, foto_nueva), archivo, Atenea(),
+                        Bauhaus(tmp_path / "s", [DISTRIBUCIONES[7]]), Revisor())
     assert exp.estado == "requiere_profesor"
     assert exp.intentos_correccion == 0                       # no insiste: solo el profesor puede resolverlo
     assert "salar_atacama" in recursos.PEDIDO.read_text(encoding="utf-8")
@@ -172,7 +173,7 @@ def test_logo_e_imagenes_reales_llegan_al_pdf(tmp_path):
     recursos.registrar_logo(foto(tmp_path / "logo.png", 500, 500))
     recursos.registrar(foto(tmp_path / "f.jpg"), "paisaje_desierto", "fotografia", "Desierto", "Foto propia", "CC BY")
     exp = producir_guia(contenido(tmp_path), Archivo(AlmacenLocal(tmp_path / "a")), Atenea(),
-                        Bauhaus(tmp_path / "s"), Revisor())
+                        Bauhaus(tmp_path / "s", [DISTRIBUCIONES[7]]), Revisor())
     assert exp.estado == "archivado", exp.revision["observaciones"]
     assert exp.diseno["imagenes"][0]["fuente"] == "Foto propia"
     assert sum(len(p.images) for p in PdfReader(exp.archivos["pdf"]).pages) >= 5   # 4 imágenes + logo

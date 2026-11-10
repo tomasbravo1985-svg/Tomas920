@@ -3,5 +3,6 @@ python-docx>=1.1     # crear documentos Word
 Pillow>=10           # preparar imágenes en escala de grises
 pytest>=8            # pruebas automáticas
 pypdf>=4             # contar páginas del PDF (REVISOR)
+pdfplumber>=0.11      # medir la diagramación de cada página (REVISOR y BAUHAUS)
 # Se agregará en la próxima etapa (interfaz visual):
 # streamlit>=1.40

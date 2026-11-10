@@ -13,6 +13,7 @@ Archivos que mantiene:
 - registro.json (en el almacén)       → todas las guías aprobadas (seguimiento curricular)
 - datos/memoria/correcciones.json     → propuestas, aprobadas y descartadas
 - contenidos/LECCIONES_APROBADAS.md   → resumen que ATENEA lee antes de escribir
+- config/reglas_aprobadas.toml        → reglas oficiales (ej.: GG-001); ARCHIVO las registra solo
 """
 from __future__ import annotations
 
@@ -42,6 +43,7 @@ class Archivo(Agente):
         e = exp.encargo
         exp.historial_previo = [g for g in self._leer_lista("registro.json")
                                 if g["asignatura"] == e.asignatura and set(g["cursos"]) & set(e.cursos)]
+        memoria.sincronizar_reglas_oficiales()          # GG-001 y futuras reglas oficiales
         exp.lecciones = memoria.aprobadas(e.asignatura)
         memoria.escribir_lecciones()
         exp.cambiar_estado("con_historial")
@@ -66,7 +68,9 @@ class Archivo(Agente):
 
     def guardar(self, exp: Expediente) -> Expediente:
         e = exp.encargo
-        carpeta = f"{slug('_'.join(e.cursos))}/{slug(e.asignatura)}/{e.fecha}_{slug(e.tema or 'guia')}"
+        version = exp.contenido.get("version")
+        carpeta = (f"{slug('_'.join(e.cursos))}/{slug(e.asignatura)}/{e.fecha}_{slug(e.tema or 'guia')}"
+                   + (f"_v{version}" if version else ""))
         guardados = {}
         for clave, ruta in exp.archivos.items():
             if clave != "carpeta" and Path(ruta).is_file():
@@ -77,7 +81,7 @@ class Archivo(Agente):
         registro = self._leer_lista("registro.json")
         oa = [f"{o['codigo']} ({o['estado']})" for o in exp.contenido.get("oa_verificacion", []) if o.get("codigo")]
         registro.append({"fecha": e.fecha, "asignatura": e.asignatura, "cursos": e.cursos,
-                         "numero": e.numero, "tema": e.tema, "oa": oa, "carpeta": carpeta,
+                         "numero": e.numero, "tema": e.tema, "version": version or 1, "oa": oa, "carpeta": carpeta,
                          "archivos": guardados})
         self._escribir_lista("registro.json", registro)
 

@@ -2,6 +2,7 @@
 #  EXIGENCIAS POR NIVEL (las usa REVISOR para cuidar que las
 #  actividades sean claras y de dificultad accesible)
 # ============================================================
+# Extensión: ver GG-001 en reglas_aprobadas.toml (mínimo 4 caras, sin máximo rígido).
 # legibilidad_minima: índice INFLESZ (0-100). 55-65 = normal; 65-80 = bastante fácil.
 
 [basica_5_6]
@@ -13,7 +14,7 @@ lectura_max_palabras = 550
 max_palabras_instruccion = 40
 max_palabras_pregunta = 30
 max_palabras_dificiles = 0.12   # proporción de palabras de 5 o más sílabas
-paginas_maximas = 10
+lectura_palabras_por_minuto = 100   # para estimar tiempos
 
 [basica_7_8]
 niveles = ["7", "8"]
@@ -24,4 +25,4 @@ lectura_max_palabras = 700
 max_palabras_instruccion = 45
 max_palabras_pregunta = 35
 max_palabras_dificiles = 0.15
-paginas_maximas = 10
+lectura_palabras_por_minuto = 130

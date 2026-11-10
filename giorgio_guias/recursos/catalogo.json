@@ -5,8 +5,8 @@
     "descripcion": "Fotografía del desierto de Atacama: paisaje árido, cielo despejado, idealmente con cactus candelabro o un oasis.",
     "estado": "provisoria",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Desierto de Atacama»); revisar licencia CC y anotar autor.",
-    "fuente": "Dibujo generado por GIORGIO GUÍAS (provisorio)",
-    "licencia": "Uso libre",
+    "fuente": "Dibujo provisorio",
+    "licencia": "",
     "autor": "",
     "archivo": "recursos/imagenes/paisaje_desierto.png",
     "usado_en": [
@@ -19,8 +19,8 @@
     "descripcion": "Fotografía de un valle de la zona central: cerros, río o canal y campos de cultivo (viñedos o frutales).",
     "estado": "provisoria",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Valle del Aconcagua» o «Valle de Colchagua»), o foto propia.",
-    "fuente": "Dibujo generado por GIORGIO GUÍAS (provisorio)",
-    "licencia": "Uso libre",
+    "fuente": "Dibujo provisorio",
+    "licencia": "",
     "autor": "",
     "archivo": "recursos/imagenes/paisaje_mediterraneo.png",
     "usado_en": [
@@ -33,8 +33,8 @@
     "descripcion": "Fotografía de bosque nativo lluvioso del sur de Chile (Valdivia, Chiloé): árboles altos, vegetación densa, humedad.",
     "estado": "provisoria",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Bosque valdiviano»); o banco de imágenes de CONAF.",
-    "fuente": "Dibujo generado por GIORGIO GUÍAS (provisorio)",
-    "licencia": "Uso libre",
+    "fuente": "Dibujo provisorio",
+    "licencia": "",
     "autor": "",
     "archivo": "recursos/imagenes/paisaje_lluvioso.png",
     "usado_en": [
@@ -47,8 +47,8 @@
     "descripcion": "Fotografía de glaciar o paisaje antártico/patagónico: hielo, montañas nevadas, agua.",
     "estado": "provisoria",
     "sugerencia_fuente": "Wikimedia Commons (buscar «Glaciar Grey» o «Antártica chilena»); INACH tiene material educativo.",
-    "fuente": "Dibujo generado por GIORGIO GUÍAS (provisorio)",
-    "licencia": "Uso libre",
+    "fuente": "Dibujo provisorio",
+    "licencia": "",
     "autor": "",
     "archivo": "recursos/imagenes/paisaje_polar.png",
     "usado_en": [

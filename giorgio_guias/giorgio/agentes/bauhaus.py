@@ -14,6 +14,12 @@ Responsabilidades:
 - Usar automáticamente el logo guardado una vez (recursos/logo/logo_escuela.png).
 - Imágenes en escala de grises, con contraste ajustado para impresión.
 - Exportar Word (python-docx) y PDF (LibreOffice, gratuito).
+
+Diagramación flexible (regla GG-001):
+  No hay saltos de página fijos ni máximo de páginas. BAUHAUS prueba varias
+  distribuciones posibles, mide cada PDF (maqueta.py: páginas casi vacías,
+  títulos sueltos, sopa partida, crucigrama separado de sus pistas, desbordes)
+  y se queda con la mejor. Nunca achica la letra para ahorrar espacio.
 """
 from __future__ import annotations
 
@@ -31,7 +37,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.shared import Cm, Pt, RGBColor
 
-from .. import configuracion, cuadriculas, memoria, recursos
+from .. import configuracion, cuadriculas, maqueta, memoria, recursos
 from .. import word as w
 from ..configuracion import RAIZ
 from ..expediente import Expediente
@@ -41,6 +47,22 @@ LETRAS = "ABCD"
 ANCHO_UTIL_CM = 21.59 - 2 * 1.8   # carta menos márgenes
 ANCHO_IMAGEN_CM = (ANCHO_UTIL_CM - 0.6) / 2 - 1.2   # 2 imágenes por fila
 ANCHO_LOGO_CM = 2.6
+
+# Distribuciones que BAUHAUS prueba: en qué actividades empezar página nueva.
+DISTRIBUCIONES = (
+    frozenset(),
+    frozenset({"sopa_de_letras"}),
+    frozenset({"sopa_de_letras", "crucigrama"}),
+    frozenset({"crucigrama", "lectura"}),
+    frozenset({"sopa_de_letras", "crucigrama", "lectura"}),
+    frozenset({"analisis_imagenes"}),
+    frozenset({"sopa_de_letras", "crucigrama", "analisis_imagenes"}),
+    frozenset({"sopa_de_letras", "crucigrama", "lectura", "analisis_imagenes"}),
+    frozenset({"sopa_de_letras", "crucigrama", "analisis_imagenes", "aplicacion"}),
+    frozenset({"sopa_de_letras", "crucigrama", "lectura", "analisis_imagenes", "aplicacion"}),
+    frozenset({"sopa_de_letras", "crucigrama", "lectura", "aplicacion"}),
+    frozenset({"lectura", "aplicacion"}),
+)
 FUENTE = "Arial"
 
 
@@ -83,8 +105,9 @@ def convertir_a_pdf(docx: Path) -> Path | None:
 class Bauhaus(Agente):
     nombre = "bauhaus"
 
-    def __init__(self, carpeta_salida: Path | None = None):
+    def __init__(self, carpeta_salida: Path | None = None, distribuciones=DISTRIBUCIONES):
         self.carpeta_salida = Path(carpeta_salida) if carpeta_salida else RAIZ / "salida"
+        self.distribuciones = tuple(distribuciones)
         self.escuela = configuracion.leer("escuela")
         self.formato = configuracion.leer("formato_guia")
 
@@ -99,7 +122,8 @@ class Bauhaus(Agente):
         semilla = 7 + 31 * exp.intentos_correccion   # si hay que rehacer, cambia el azar
         self.reglas = memoria.reglas(exp.lecciones)
         e = exp.encargo
-        carpeta = self.carpeta_salida / f"{e.fecha}_{nombre_corto(e.asignatura)}_{slug('_'.join(e.cursos))}_guia{e.numero}"
+        v = f"_v{c['version']}" if c.get("version") else ""
+        carpeta = self.carpeta_salida / f"{e.fecha}_{nombre_corto(e.asignatura)}_{slug('_'.join(e.cursos))}_guia{e.numero}{v}"
         carpeta.mkdir(parents=True, exist_ok=True)
         self.carpeta_imagenes = carpeta / "_imagenes_impresion"
         exp.diseno = {
@@ -108,23 +132,56 @@ class Bauhaus(Agente):
             "imagenes": self._resolver_imagenes(exp, c["analisis_imagenes"].get("imagenes", [])),
             "logo": str(recursos.logo_disponible() or ""),
         }
-        base = f"{nombre_corto(e.asignatura)}_{slug('_'.join(e.cursos))}_guia{e.numero}_{e.fecha}"
+        base = f"{nombre_corto(e.asignatura)}_{slug('_'.join(e.cursos))}_guia{e.numero}{v}_{e.fecha}"
 
         guia = carpeta / f"{base}.docx"
-        self._documento_guia(exp, carpeta).save(guia)
+        exp.diseno["maqueta"] = self._mejor_distribucion(exp, carpeta, guia)
         solucionario = carpeta / f"{base}_SOLUCIONARIO.docx"
         self._documento_solucionario(exp).save(solucionario)
 
         exp.archivos = {"carpeta": str(carpeta), "docx": str(guia), "solucionario_docx": str(solucionario)}
-        for clave, docx in (("pdf", guia), ("solucionario_pdf", solucionario)):
-            pdf = convertir_a_pdf(docx)
-            if pdf:
-                exp.archivos[clave] = str(pdf)
+        if guia.with_suffix(".pdf").exists():
+            exp.archivos["pdf"] = str(guia.with_suffix(".pdf"))
+        pdf = convertir_a_pdf(solucionario)
+        if pdf:
+            exp.archivos["solucionario_pdf"] = str(pdf)
 
         exp.cambiar_estado("disenado")
         exp.anotar("bauhaus", "revisor", "entrega",
                    f"Guía diseñada en {carpeta.name} (PDF: {'sí' if 'pdf' in exp.archivos else 'no'}).")
         return exp
+
+    def _mejor_distribucion(self, exp, carpeta: Path, destino: Path) -> dict:
+        """Prueba distribuciones, mide cada PDF y deja en `destino` la mejor (GG-001)."""
+        pruebas = carpeta / "_pruebas_de_diagramacion"
+        pruebas.mkdir(exist_ok=True)
+        resultados = []
+        for i, saltos in enumerate(self.distribuciones):
+            self.saltos = saltos
+            docx = pruebas / f"opcion_{i}.docx"
+            self._documento_guia(exp, carpeta).save(docx)
+            pdf = convertir_a_pdf(docx)
+            if pdf is None:          # sin LibreOffice no se puede medir: se usa la primera
+                break
+            analisis = maqueta.analizar(pdf, self.reglas.get("letra_minima_pt", 10))
+            resultados.append((maqueta.puntaje(analisis, self.reglas), i, docx, pdf, analisis))
+            hallazgos = maqueta.problemas(analisis, self.reglas)
+            if not hallazgos["graves"] and not hallazgos["leves"] and analisis["total"] >= 4 \
+                    and all(p["ocupacion"] >= 0.75 for p in analisis["paginas"][:-1]):
+                break                # ya es muy buena: no hace falta seguir probando
+        if not resultados:
+            self.saltos = self.distribuciones[0]
+            self._documento_guia(exp, carpeta).save(destino)
+            return {"opcion": 0, "probadas": 0}
+        puntaje, i, docx, pdf, analisis = min(resultados, key=lambda r: (r[0], r[1]))
+        shutil.copy2(docx, destino)
+        shutil.copy2(pdf, destino.with_suffix(".pdf"))
+        shutil.rmtree(pruebas, ignore_errors=True)
+        exp.anotar("bauhaus", "revisor", "aviso",
+                   f"Probé {len(resultados)} distribuciones; elegí la opción {i} "
+                   f"({analisis['total']} páginas, puntaje {puntaje}).")
+        return {"opcion": i, "probadas": len(resultados), "paginas": analisis["total"],
+                "saltos": sorted(self.distribuciones[i]), "puntaje": puntaje}
 
     def _resolver_imagenes(self, exp, imagenes) -> list[dict]:
         """Busca cada imagen en el banco de recursos. Si falta, la pide al profesor."""
@@ -209,7 +266,7 @@ class Bauhaus(Agente):
             p = celda_logo.paragraphs[0]
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             r = p.add_run("\nLOGO\n")
-            r.font.size = Pt(9)
+            r.font.size = Pt(10)
             r.font.color.rgb = RGBColor(0x80, 0x80, 0x80)
         celda_texto.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
         p = celda_texto.paragraphs[0]
@@ -257,12 +314,12 @@ class Bauhaus(Agente):
             p.paragraph_format.space_after = Pt(3)
             r = p.add_run(f"{etiqueta} ")
             r.bold = True
-            r.font.size = Pt(10.5)
+            r.font.size = Pt(11)
             r2 = p.add_run(texto)
-            r2.font.size = Pt(10.5)
+            r2.font.size = Pt(11)
         doc.add_paragraph()
 
-    def _barra(self, doc, numero, titulo, salto_pagina=False):
+    def _barra(self, doc, numero, titulo, salto_pagina=False, minutos=None):
         if salto_pagina:
             doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
         p = doc.add_paragraph()
@@ -270,10 +327,28 @@ class Bauhaus(Agente):
         p.paragraph_format.space_after = Pt(6)
         w.sombrear(p, "BFBFBF")
         etiqueta = f"  ACTIVIDAD {numero}  │  " if numero else "  "
+        subtitulo = ""
+        if len(titulo) > 34 and ":" in titulo:      # título largo: el nombre propio va abajo
+            titulo, subtitulo = (x.strip() for x in titulo.split(":", 1))
         r = p.add_run(f"{etiqueta}{titulo.upper()}")
         r.bold = True
         r.font.size = Pt(13)
+        if minutos:
+            t = p.add_run(f"   ⏱ {minutos} min")
+            t.font.size = Pt(11)
         w.no_separar_de_lo_siguiente(p)
+        if subtitulo:
+            sp = doc.add_paragraph()
+            sp.paragraph_format.space_after = Pt(4)
+            rs = sp.add_run(subtitulo)
+            rs.bold = True
+            rs.font.size = Pt(14)
+            w.no_separar_de_lo_siguiente(sp)
+
+    def _inicio(self, seccion, c) -> dict:
+        """Salto de página (según la distribución elegida) y minutos sugeridos por ATENEA."""
+        return {"salto_pagina": seccion in getattr(self, "saltos", DISTRIBUCIONES[0]),
+                "minutos": c.get("secuencia", {}).get(seccion, {}).get("minutos")}
 
     def _instruccion(self, doc, texto):
         p = doc.add_paragraph()
@@ -316,25 +391,25 @@ class Bauhaus(Agente):
 
         # 1. Actividad inicial
         ai = c["actividad_inicial"]
-        self._barra(doc, siguiente(), secciones["actividad_inicial"]["titulo"])
+        self._barra(doc, siguiente(), secciones["actividad_inicial"]["titulo"], **self._inicio("actividad_inicial", c))
         self._instruccion(doc, ai["instruccion"])
         self._preguntas(doc, ai["preguntas"])
 
         # 2. Sopa de letras
-        self._barra(doc, siguiente(), secciones["sopa_de_letras"]["titulo"], salto_pagina=True)
+        self._barra(doc, siguiente(), secciones["sopa_de_letras"]["titulo"], **self._inicio("sopa_de_letras", c))
         self._instruccion(doc, c["sopa_de_letras"]["instruccion"])
         self._grilla_sopa(doc, exp.diseno["sopa"], solucion=False)
         self._lista_palabras(doc, c["sopa_de_letras"]["palabras"])
 
         # 3. Crucigrama
-        self._barra(doc, siguiente(), secciones["crucigrama"]["titulo"], salto_pagina=True)
+        self._barra(doc, siguiente(), secciones["crucigrama"]["titulo"], **self._inicio("crucigrama", c))
         self._instruccion(doc, c["crucigrama"]["instruccion"])
         self._grilla_crucigrama(doc, exp.diseno["crucigrama"], solucion=False)
         self._pistas_crucigrama(doc, exp.diseno["crucigrama"])
 
         # 4. Lectura
         lec = c["lectura"]
-        self._barra(doc, siguiente(), secciones["lectura"]["titulo"], salto_pagina=True)
+        self._barra(doc, siguiente(), secciones["lectura"]["titulo"], **self._inicio("lectura", c))
         t = doc.add_paragraph()
         t.alignment = WD_ALIGN_PARAGRAPH.CENTER
         r = t.add_run(lec["titulo"])
@@ -352,7 +427,7 @@ class Bauhaus(Agente):
 
         # 5. Análisis de imágenes
         ai = c["analisis_imagenes"]
-        self._barra(doc, siguiente(), secciones["analisis_imagenes"]["titulo"])
+        self._barra(doc, siguiente(), secciones["analisis_imagenes"]["titulo"], **self._inicio("analisis_imagenes", c))
         self._instruccion(doc, ai["instruccion"])
         self._imagenes(doc, exp.diseno["imagenes"])
         if ai.get("tabla"):
@@ -362,7 +437,7 @@ class Bauhaus(Agente):
 
         # 6. Selección única
         su = c["seleccion_unica"]
-        self._barra(doc, siguiente(), secciones["seleccion_unica"]["titulo"])
+        self._barra(doc, siguiente(), secciones["seleccion_unica"]["titulo"], **self._inicio("seleccion_unica", c))
         self._instruccion(doc, su["instruccion"])
         for i, preg in enumerate(su["preguntas"], start=1):
             p = doc.add_paragraph()
@@ -379,7 +454,7 @@ class Bauhaus(Agente):
 
         # 7. Verdadero o falso
         vf = c["verdadero_falso"]
-        self._barra(doc, siguiente(), secciones["verdadero_falso"]["titulo"])
+        self._barra(doc, siguiente(), secciones["verdadero_falso"]["titulo"], **self._inicio("verdadero_falso", c))
         self._instruccion(doc, vf["instruccion"])
         tabla = doc.add_table(rows=len(vf["afirmaciones"]), cols=2)
         w.bordes_tabla(tabla, color="808080")
@@ -398,11 +473,12 @@ class Bauhaus(Agente):
         # 8. Aplicación
         ap = c["aplicacion"]
         titulo_ap = secciones["aplicacion"]["titulo"] + (f": {ap['titulo']}" if ap.get("titulo") else "")
-        self._barra(doc, siguiente(), titulo_ap, salto_pagina=True)
+        self._barra(doc, siguiente(), titulo_ap, **self._inicio("aplicacion", c))
         self._instruccion(doc, ap["instruccion"])
         for i, paso in enumerate(ap.get("pasos", []), start=1):
             pp = doc.add_paragraph(f"Paso {i}: {paso}")
             pp.paragraph_format.left_indent = Cm(0.5)
+            w.no_separar_de_lo_siguiente(pp)   # los pasos no se separan del recuadro
         if ap.get("recuadro_dibujo"):
             tabla = doc.add_table(rows=1, cols=1)
             w.ancho_columnas(tabla, [ANCHO_UTIL_CM])
@@ -426,6 +502,9 @@ class Bauhaus(Agente):
         r = cp.add_run(secciones["ticket_salida"]["titulo"].upper())
         r.bold = True
         r.font.size = Pt(13)
+        minutos_ticket = c.get("secuencia", {}).get("ticket_salida", {}).get("minutos")
+        if minutos_ticket:
+            cp.add_run(f"   ⏱ {minutos_ticket} min").font.size = Pt(11)
         celda.add_paragraph("Nombre: ______________________________   Curso: ________")
         for i, preg in enumerate(ts["preguntas"], start=1):
             pq = celda.add_paragraph()
@@ -555,7 +634,7 @@ class Bauhaus(Agente):
             if img.get("fuente"):
                 credito = celda.add_paragraph(f"Fuente: {img['fuente']}" + (f" ({img['licencia']})" if img.get("licencia") else ""))
                 credito.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                credito.runs[0].font.size = Pt(7)
+                credito.runs[0].font.size = Pt(8)
         doc.add_paragraph()
 
     def _tabla_para_completar(self, doc, tabla_def):
@@ -578,6 +657,35 @@ class Bauhaus(Agente):
             r.bold = True
         doc.add_paragraph()
 
+    def _tabla_secuencia(self, doc, secuencia):
+        """Secuencia pedagógica de 90 minutos propuesta por ATENEA (para el docente)."""
+        titulos = {s["id"]: s["titulo"] for s in self.formato["secciones"]}
+        p = doc.add_paragraph()
+        p.add_run("Secuencia de la clase").bold = True
+        tabla = doc.add_table(rows=1, cols=4)
+        w.bordes_tabla(tabla, color="808080")
+        w.ancho_columnas(tabla, [4.2, 1.2, 3.6, ANCHO_UTIL_CM - 9.0])
+        for celda, texto in zip(tabla.rows[0].cells, ("Momento", "Min", "Habilidad", "Propósito")):
+            w.sombrear(celda, "D9D9D9")
+            celda.paragraphs[0].add_run(texto).bold = True
+        total = 0
+        for sec, datos in secuencia.items():
+            fila = tabla.add_row().cells
+            fila[0].paragraphs[0].add_run(titulos.get(sec, sec))
+            fila[1].paragraphs[0].add_run(str(datos.get("minutos", "")))
+            fila[2].paragraphs[0].add_run(datos.get("habilidad", ""))
+            fila[3].paragraphs[0].add_run(datos.get("proposito", ""))
+            total += datos.get("minutos", 0)
+        fila = tabla.add_row().cells
+        fila[0].paragraphs[0].add_run("TOTAL").bold = True
+        fila[1].paragraphs[0].add_run(str(total)).bold = True
+        for fila in tabla.rows:
+            for celda in fila.cells:
+                for par in celda.paragraphs:
+                    for r in par.runs:
+                        r.font.size = Pt(10)
+        doc.add_paragraph()
+
     # ------------------------------------------------------------------ solucionario
     def _documento_solucionario(self, exp: Expediente) -> Document:
         c = exp.contenido
@@ -592,12 +700,14 @@ class Bauhaus(Agente):
                 datos.append(("Objetivo de Aprendizaje:", oa["motivo"]))
             else:
                 datos.append(("Objetivo de Aprendizaje: PENDIENTE DE CONFIRMACIÓN.",
-                              f"{oa['motivo']} Propuesta sin verificar: {oa['texto'] or '—'}"))
+                              f"{oa['motivo']} Propuesta sin verificar ({oa['codigo'] or 'sin número'}): {oa['texto'] or '—'}"))
         if c.get("distribucion_tiempo"):
             datos.append(("Tiempo sugerido:", " · ".join(f"{k}: {v} min" for k, v in c["distribucion_tiempo"].items())))
         self._recuadro(doc, datos)
+        if c.get("secuencia"):
+            self._tabla_secuencia(doc, c["secuencia"])
 
-        self._barra(doc, None, "Sopa de letras (solución)")
+        self._barra(doc, None, "Sopa de letras (solución)", salto_pagina=bool(c.get("secuencia")))
         self._grilla_sopa(doc, exp.diseno["sopa"], solucion=True)
 
         self._barra(doc, None, "Crucigrama (solución)", salto_pagina=True)

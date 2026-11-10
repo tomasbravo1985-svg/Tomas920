@@ -1,0 +1,27 @@
+# ============================================================
+#  REGLAS APROBADAS OFICIALMENTE POR EL PROFESOR
+#  ARCHIVO las registra en la memoria y se aplican a TODAS las guías.
+#  Para agregar una regla nueva: copia un bloque [[reglas]] y cambia sus datos.
+# ============================================================
+
+[[reglas]]
+codigo = "GG-001"
+nombre = "Extensión flexible"
+fecha_aprobacion = "2026-11-10"
+aprobada_por = "Profesor (Escuela Rebeca Matte Bello)"
+descripcion = """Todas las guías tendrán un mínimo de cuatro páginas tamaño carta, orientación \
+vertical. La extensión final será flexible y dependerá de los contenidos, las actividades, \
+las imágenes y los espacios de respuesta. No se establece un máximo rígido de páginas."""
+tipo = "extension_flexible"
+
+  [reglas.valor]
+  paginas_minimas = 4              # mínimo obligatorio
+  paginas_maximas = 0              # 0 = sin máximo rígido
+  duracion_clase_minutos = 90
+  tolerancia_minutos = 5           # la suma de tiempos debe estar entre 85 y 95
+  relleno_maximo = 0.25            # sopa + crucigrama no deben ocupar más del 25 % del tiempo
+  recordar_maximo = 0.50           # máximo 50 % de preguntas de solo recordar
+  ocupacion_minima_pagina = 0.40   # ninguna página (salvo la última) con menos del 40 % ocupado
+  ocupacion_minima_ultima = 0.25
+  letra_minima_pt = 10             # tamaño mínimo del texto para el estudiante
+  ancho_minimo_imagen_cm = 6.5     # imágenes suficientemente grandes para ver detalles
