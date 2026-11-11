@@ -140,3 +140,18 @@ def test_maqueta_acepta_guia_larga_sin_maximo():
 def test_maqueta_exige_minimo_de_cuatro():
     analisis = {"total": 3, "paginas": [_pagina(i) for i in range(1, 4)]}
     assert any("mínimo aprobado" in g for g in maqueta.problemas(analisis, GG)["graves"])
+
+
+def test_maqueta_reconoce_titulos_con_minutos_y_frases_que_anuncian():
+    """Regresión: con '⏱ 9 min' en el título, el crucigrama separado de sus pistas no se detectaba."""
+    analisis = {"total": 4, "paginas": [
+        _pagina(1, titulos=[{"numero": 1, "texto": "ACTIVIDAD 1 │ CRUCIGRAMA ⏱ 9 min", "posicion": 0.7}],
+                tiene_crucigrama=True, ultima_linea="Corrige aquí las afirmaciones falsas:"),
+        _pagina(2, tiene_horizontales=True, tiene_verticales=True),
+        _pagina(3, imagenes=[{"ancho_cm": 7.4, "alto_cm": 5, "arriba": 300}]),
+        _pagina(4, tiene_tabla_imagenes=True)]}
+    pr = maqueta.problemas(analisis, GG)
+    graves = " ".join(pr["graves"])
+    assert "separado de sus pistas" in graves
+    assert "anuncia" in graves
+    assert any("páginas distintas" in l for l in pr["leves"])

@@ -27,5 +27,19 @@
     "guias": [],
     "veces": 1,
     "id": 1
+  },
+  {
+    "id": 2,
+    "fecha": "2026-11-11",
+    "origen": "revisor",
+    "agente": "bauhaus",
+    "categoria": "diagramacion",
+    "descripcion": "Las imágenes de la actividad quedaron repartidas entre las páginas 5, 6: deben verse juntas.",
+    "estado": "propuesta",
+    "regla": null,
+    "guias": [
+      "2026-11-11 Historia, Geografía y Ciencias Sociales 6.º C"
+    ],
+    "veces": 1
   }
 ]

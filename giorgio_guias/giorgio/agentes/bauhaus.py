@@ -47,6 +47,7 @@ LETRAS = "ABCD"
 ANCHO_UTIL_CM = 21.59 - 2 * 1.8   # carta menos márgenes
 ANCHO_IMAGEN_CM = (ANCHO_UTIL_CM - 0.6) / 2 - 1.2   # 2 imágenes por fila
 ANCHO_LOGO_CM = 2.6
+PROPORCION_IMAGEN = 3 / 2   # ancho / alto de las fotos impresas (todas iguales, bloque más compacto)
 
 # Distribuciones que BAUHAUS prueba: en qué actividades empezar página nueva.
 DISTRIBUCIONES = (
@@ -463,12 +464,20 @@ class Bauhaus(Agente):
             w.alto_fila(fila, 1.1)
             fila.cells[1].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
             fila.cells[1].paragraphs[0].add_run(af["texto"])
-        p = doc.add_paragraph()
+        # La frase y sus líneas van en un bloque que no se puede partir entre páginas.
+        # Un párrafo separador evita que Word/LibreOffice fusionen este bloque con la tabla V/F.
+        separador = doc.add_paragraph()
+        separador.paragraph_format.space_after = Pt(0)
+        bloque = doc.add_table(rows=1, cols=1)
+        w.sin_bordes_tabla(bloque)
+        w.ancho_columnas(bloque, [ANCHO_UTIL_CM])
+        w.no_dividir_fila(bloque.rows[0])
+        celda = bloque.rows[0].cells[0]
+        p = celda.paragraphs[0]
         p.paragraph_format.space_before = Pt(8)
         p.add_run("Corrige aquí las afirmaciones falsas:").bold = True
-        w.no_separar_de_lo_siguiente(p)
         for _ in range(sum(1 for a in vf["afirmaciones"] if not a["respuesta"])):
-            w.linea_para_escribir(doc)
+            w.linea_para_escribir(celda)
 
         # 8. Aplicación
         ap = c["aplicacion"]
@@ -619,11 +628,15 @@ class Bauhaus(Agente):
         for fila in tabla.rows:
             w.no_dividir_fila(fila)
         for i, img in enumerate(imagenes):
+            if i // cols < filas - 1:     # las filas de imágenes no se separan entre sí
+                for par in tabla.rows[i // cols].cells[i % cols].paragraphs:
+                    w.no_separar_de_lo_siguiente(par)
             celda = tabla.rows[i // cols].cells[i % cols]
             p = celda.paragraphs[0]
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             if img["ruta"]:
                 impresion = recursos.preparar_para_imprimir(Path(img["ruta"]), self.carpeta_imagenes)
+                impresion = recursos.recortar_proporcion(impresion, PROPORCION_IMAGEN)  # todas iguales
                 p.add_run().add_picture(str(impresion), width=Cm(ANCHO_IMAGEN_CM))
             else:  # falta: queda un recuadro visible y REVISOR detendrá la entrega
                 w.bordes_celda(celda, estilo="dashed", color="808080")

@@ -7,7 +7,7 @@ Sistema de cuatro agentes que fabrica guías escolares (Word y PDF) para la
 > 90 minutos, diagramación automática medida página por página y control de tiempo
 > y nivel de pensamiento. Falta la interfaz con botones.
 >
-> 👉 Mira **`ejemplos/version_2/`**: guía, solucionario e `INFORME_CONTROL_CALIDAD.md`.
+> 👉 Versión más reciente: **`ejemplos/version_3/`** (fotos reales, logo y OA 12 verificado).
 > La guía piloto original sigue intacta en `ejemplos/`.
 
 ## Reglas aprobadas

@@ -209,6 +209,22 @@ def preparar_para_imprimir(ruta: Path, destino_carpeta: Path) -> Path:
     return destino
 
 
+def recortar_proporcion(ruta: Path, proporcion: float) -> Path:
+    """Recorta desde el centro para que la imagen tenga la proporción ancho/alto pedida.
+    Trabaja sobre la COPIA de impresión; el original del banco no se toca."""
+    destino = ruta.with_name(ruta.stem + f"_{proporcion:.2f}.png")
+    with Image.open(ruta) as im:
+        ancho, alto = im.size
+        if ancho / alto > proporcion:          # demasiado ancha: se recortan los lados
+            nuevo = round(alto * proporcion)
+            caja = ((ancho - nuevo) // 2, 0, (ancho - nuevo) // 2 + nuevo, alto)
+        else:                                   # demasiado alta: se recorta arriba y abajo
+            nuevo = round(ancho / proporcion)
+            caja = (0, (alto - nuevo) // 2, ancho, (alto - nuevo) // 2 + nuevo)
+        im.crop(caja).save(destino)
+    return destino
+
+
 # ------------------------------------------------------------------ logo
 def registrar_logo(origen: Path) -> dict:
     """Guarda el logo UNA vez; todas las guías lo usarán solas.

@@ -72,6 +72,8 @@ def analizar(pdf: Path, letra_minima_pt: float = 10) -> dict:
                          "arriba": im["top"]} for im in p.images]
 
             texto = "\n".join(ln["text"] for ln in lineas)
+            ultima = next((ln for ln in reversed(lineas)
+                           if not re.match(r"^P[áa]gina \d+ de \d+$", ln["text"])), None)
             # recuadros grandes para dibujar (más de 4 cm de alto y casi todo el ancho)
             recuadros = [r for r in p.rects + p.lines
                          if r["bottom"] - r["top"] > 4 * PT_POR_CM and en_cuerpo(r)]
@@ -79,7 +81,13 @@ def analizar(pdf: Path, letra_minima_pt: float = 10) -> dict:
                 "numero": numero, "ocupacion": round(ocupacion, 2), "desbordes": len(desbordes),
                 "letra_pequena": pequenas, "titulos": titulos, "imagenes": imagenes,
                 "filas_sopa": sum(1 for ln in lineas if FILA_SOPA.match(ln["text"])),
-                "tiene_crucigrama": "CRUCIGRAMA" in texto and any(t["texto"].endswith("CRUCIGRAMA") for t in titulos),
+                # el título puede llevar los minutos al final ("… CRUCIGRAMA ⏱ 9 min")
+                "tiene_crucigrama": any("CRUCIGRAMA" in t["texto"] for t in titulos),
+                "ultima_linea": ultima["text"] if ultima else "",
+                # ¿hay líneas para escribir, recuadros o imágenes debajo de ese último texto?
+                "algo_debajo": bool(ultima) and any(o["top"] > ultima["bottom"] + 2
+                                                     for o in p.lines + p.rects + p.images if en_cuerpo(o)),
+                "tiene_tabla_imagenes": "Ambiente natural" in texto or "Una característica" in texto,
                 "tiene_horizontales": "Horizontales" in texto,
                 "tiene_verticales": "Verticales" in texto,
                 "texto": texto,
@@ -134,6 +142,19 @@ def problemas(analisis: dict, reglas: dict) -> dict:
             graves.append(f"El crucigrama (página {pag_cruci}) quedó separado de sus pistas (página {min(pistas)}).")
         elif len(pistas) > 1:
             leves.append("Las pistas del crucigrama siguen en la página siguiente.")
+
+    for p in pags[:-1]:
+        ultima = p.get("ultima_linea", "").strip()
+        if ultima.endswith(":") and not p.get("algo_debajo") and not FILA_SOPA.match(ultima):
+            graves.append(f"La página {p['numero']} termina con «{ultima[:45]}», pero lo que anuncia "
+                          f"quedó en la página siguiente.")
+
+    pags_img = [p["numero"] for p in pags if p["imagenes"] and not
+                all(im["ancho_cm"] < 3.5 and p["numero"] == 1 and im["arriba"] < 150 for im in p["imagenes"])]
+    pags_tabla = [p["numero"] for p in pags if p.get("tiene_tabla_imagenes")]
+    if pags_img and pags_tabla and pags_tabla[0] not in pags_img:
+        leves.append(f"Las imágenes (página {pags_img[0]}) y su tabla para completar "
+                     f"(página {pags_tabla[0]}) quedaron en páginas distintas.")
 
     pag_aplic = next((p["numero"] for p in pags if p["tiene_aplicacion"]), None)
     pags_recuadro = [p["numero"] for p in pags if p["tiene_recuadro_dibujo"]]
